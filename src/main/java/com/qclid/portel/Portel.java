@@ -1,4 +1,4 @@
-package com.qclid.portal;
+package com.qclid.portel;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -7,18 +7,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 
-public final class Portal extends JavaPlugin {
+public final class Portel extends JavaPlugin {
 
     private HttpServer server;
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
         saveDefaultConfig();
         saveResource("web/index.html", false);
         saveResource("web/styles.css", false);
@@ -31,7 +29,7 @@ public final class Portal extends JavaPlugin {
         try {
             server = HttpServer.create(new InetSocketAddress(getConfig().getInt("port")), 0);
             server.createContext("/", new MyHandler());
-            server.setExecutor(null); // creates a default executor
+            server.setExecutor(null);
             server.start();
             getLogger().info("Web server started on port " + getConfig().getInt("port"));
         } catch (IOException e) {
@@ -42,7 +40,6 @@ public final class Portal extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
         server.stop(0);
     }
 
