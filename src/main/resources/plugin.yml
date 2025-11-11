@@ -1,0 +1,8 @@
+name: Portal
+version: '0.0.1'
+main: com.qclid.portal.Portal
+api-version: '1.21'
+prefix: Portal
+authors: [ Qclid ]
+description: Website through minecraft server
+website: www.qclid.space
