@@ -21,7 +21,6 @@ public final class Portel extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         saveResource("web/index.html", false);
-        saveResource("web/styles.css", false);
         saveResource("web/script.js", false);
         saveResource("web/assets/favicon.ico", false);
         saveResource("web/assets/logo.png", false);
@@ -68,35 +67,30 @@ public final class Portel extends JavaPlugin {
 
         @Override
         public void handle(HttpExchange t) throws IOException {
-            if (getConfig().getBoolean("rate-limiting.enabled")) {
-                String ip = t.getRemoteAddress().getAddress().getHostAddress();
-
-                long time = System.currentTimeMillis();
-
-                if (
-                    lastRequest.containsKey(ip) &&
-                    time - lastRequest.get(ip) <
-                    getConfig().getInt("rate-limiting.delay")
-                ) {
-                    String response = "429 (Too Many Requests)";
-
-                    t.sendResponseHeaders(429, response.length());
-
-                    OutputStream os = t.getResponseBody();
-
-                    os.write(response.getBytes());
-
-                    os.close();
-
-                    return;
-                }
-
-                lastRequest.put(ip, time);
-            }
-
             String requestedFile = t.getRequestURI().getPath().equals("/")
                 ? getConfig().getString("index-file")
                 : t.getRequestURI().getPath().substring(1);
+
+            if (getConfig().getBoolean("rate-limiting.enabled")) {
+                String ip = t.getRemoteAddress().getAddress().getHostAddress();
+                String ipAndFileKey = ip + ":" + requestedFile;
+                long time = System.currentTimeMillis();
+
+                if (
+                    lastRequest.containsKey(ipAndFileKey) &&
+                    time - lastRequest.get(ipAndFileKey) <
+                    getConfig().getInt("rate-limiting.delay")
+                ) {
+                    String response = "429 (Too Many Requests)";
+                    t.sendResponseHeaders(429, response.length());
+                    OutputStream os = t.getResponseBody();
+                    os.write(response.getBytes());
+                    os.close();
+                    return;
+                }
+
+                lastRequest.put(ipAndFileKey, time);
+            }
 
             File file = new File(getDataFolder(), "web/" + requestedFile);
 
