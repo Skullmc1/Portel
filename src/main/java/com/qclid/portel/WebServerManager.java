@@ -35,11 +35,10 @@ public class WebServerManager {
     }
 
     public void start() throws IOException {
-        server =
-            HttpServer.create(
-                new InetSocketAddress(plugin.getConfig().getInt("port")),
-                0
-            );
+        server = HttpServer.create(
+            new InetSocketAddress(plugin.getConfig().getInt("port")),
+            0
+        );
         server.createContext("/", new MyHandler());
         server.setExecutor(null);
         server.start();
@@ -74,12 +73,24 @@ public class WebServerManager {
                 .getBoolean("is_whitelist_on");
             List<String> ipList = plugin.getConfig().getStringList("ip_list");
 
-            if (
-                (isWhitelistOn && !ipList.contains(ip)) ||
-                (!isWhitelistOn && ipList.contains(ip))
-            ) {
-                errorPageHandler.serve403(t);
-                return;
+            if (isWhitelistOn) {
+                if (!ipList.contains(ip)) {
+                    File errorFile = new File(
+                        plugin.getDataFolder(),
+                        "web/error-pages/403.html"
+                    );
+                    t.getResponseHeaders().set("Content-Type", "text/html");
+                    t.sendResponseHeaders(200, errorFile.length());
+                    OutputStream os = t.getResponseBody();
+                    Files.copy(errorFile.toPath(), os);
+                    os.close();
+                    return;
+                }
+            } else {
+                if (ipList.contains(ip)) {
+                    errorPageHandler.serve403(t);
+                    return;
+                }
             }
 
             ipLogger.log(ip);
@@ -100,9 +111,9 @@ public class WebServerManager {
             logger.info("Attempting to serve file: " + file.getAbsolutePath());
             logger.info(
                 "User " +
-                t.getRemoteAddress().getAddress().getHostAddress() +
-                " requested " +
-                requestedFile
+                    t.getRemoteAddress().getAddress().getHostAddress() +
+                    " requested " +
+                    requestedFile
             );
 
             if (file.exists()) {
