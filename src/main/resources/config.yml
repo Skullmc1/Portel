@@ -17,3 +17,7 @@ rate-limiting:
 # If is_whitelist_on is false, IPs in the ip_list will be blocked.
 is_whitelist_on: false
 ip_list: []
+
+logging:
+  console: false
+  ip: true

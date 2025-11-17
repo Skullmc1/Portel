@@ -1,5 +1,5 @@
 name: Portel
-version: "1.2.0"
+version: "1.3.0"
 main: com.qclid.portel.Portel
 api-version: "1.21"
 prefix: Portel
@@ -14,4 +14,7 @@ commands:
 permissions:
   portel.restart:
     description: Allows to restart the web server
+    default: op
+  portel.reload:
+    description: Allows to reload the configuration
     default: op

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-11-17
+
+### Added
+
+-   `/portel reload` command to reload the configuration.
+-   Customizable 429 error page for rate limiting.
+-   Configuration options for console and IP logging.
+
+### Changed
+
+-   Refactored the main `Portel.java` class into smaller, more manageable classes.
+
+## [1.2.1] - 2025-11-17
+
+### Added
+
+-   Customizable 403 and 404 error pages.
+
 ## [1.2.0] - 2025-11-17
 
 ### Added
