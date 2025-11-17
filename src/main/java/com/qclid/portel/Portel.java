@@ -4,10 +4,15 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,6 +31,7 @@ public final class Portel extends JavaPlugin {
         saveResource("web/assets/logo.png", false);
         saveResource("web/fonts/Unbounded.ttf", false);
         saveResource("web/fonts/Minecraft.otf", false);
+        saveResource("ips.yml", false);
 
         try {
             startWebServer();
@@ -67,12 +73,33 @@ public final class Portel extends JavaPlugin {
 
         @Override
         public void handle(HttpExchange t) throws IOException {
+            String ip = t.getRemoteAddress().getAddress().getHostAddress();
+            boolean isWhitelistOn = getConfig().getBoolean("is_whitelist_on");
+            List<String> ipList = getConfig().getStringList("ip_list");
+
+            if (isWhitelistOn && !ipList.contains(ip)) {
+                String response = "403 (Forbidden)";
+                t.sendResponseHeaders(403, response.length());
+                OutputStream os = t.getResponseBody();
+                os.write(response.getBytes());
+                os.close();
+                return;
+            } else if (!isWhitelistOn && ipList.contains(ip)) {
+                String response = "403 (Forbidden)";
+                t.sendResponseHeaders(403, response.length());
+                OutputStream os = t.getResponseBody();
+                os.write(response.getBytes());
+                os.close();
+                return;
+            }
+
+            logIp(ip);
+
             String requestedFile = t.getRequestURI().getPath().equals("/")
                 ? getConfig().getString("index-file")
                 : t.getRequestURI().getPath().substring(1);
 
             if (getConfig().getBoolean("rate-limiting.enabled")) {
-                String ip = t.getRemoteAddress().getAddress().getHostAddress();
                 String ipAndFileKey = ip + ":" + requestedFile;
                 long time = System.currentTimeMillis();
 
@@ -136,6 +163,25 @@ public final class Portel extends JavaPlugin {
                 return "font/otf";
             }
             return "text/html";
+        }
+
+        private void logIp(String ip) {
+            try (
+                FileWriter fw = new FileWriter(
+                    new File(getDataFolder(), "ips.yml"),
+                    true
+                );
+                PrintWriter pw = new PrintWriter(fw)
+            ) {
+                String timestamp = new SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm:ss"
+                ).format(new Date());
+                pw.println(timestamp + " " + ip);
+            } catch (IOException e) {
+                getLogger().warning(
+                    "Failed to log IP address: " + e.getMessage()
+                );
+            }
         }
     }
 }

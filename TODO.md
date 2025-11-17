@@ -4,7 +4,7 @@ This file contains a list of suggested features and improvements for the Portel 
 
 ## High Priority
 
--   [ ] **Security:** Implement a whitelist/blacklist system for IP addresses to control access to the web server.
+-   [x] **Security:** Implement a whitelist/blacklist system for IP addresses to control access to the web server.
 -   [x] **Security:** Add rate limiting to prevent DoS attacks.
 -   [x] **Feature:** Add an in-game command to manage the web server (e.g., `/portel start`, `/portel stop`, `/portel restart`).
 
