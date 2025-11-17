@@ -12,15 +12,15 @@ public class SaveDefaultAssets {
 
     public void save() {
         plugin.saveDefaultConfig();
-        plugin.saveResource("web/index.html", false);
-        plugin.saveResource("web/script.js", false);
-        plugin.saveResource("web/assets/favicon.ico", false);
-        plugin.saveResource("web/assets/logo.png", false);
-        plugin.saveResource("web/fonts/Unbounded.ttf", false);
-        plugin.saveResource("web/fonts/Minecraft.otf", false);
-        plugin.saveResource("ips.yml", false);
-        plugin.saveResource("web/error-pages/403.html", false);
-        plugin.saveResource("web/error-pages/404.html", false);
-        plugin.saveResource("web/error-pages/429.html", false);
+        plugin.saveResource("web/index.html", true);
+        plugin.saveResource("web/script.js", true);
+        plugin.saveResource("web/assets/favicon.ico", true);
+        plugin.saveResource("web/assets/logo.png", true);
+        plugin.saveResource("web/fonts/Unbounded.ttf", true);
+        plugin.saveResource("web/fonts/Minecraft.otf", true);
+        plugin.saveResource("ips.yml", true);
+        plugin.saveResource("web/error-pages/403.html", true);
+        plugin.saveResource("web/error-pages/404.html", true);
+        plugin.saveResource("web/error-pages/429.html", true);
     }
 }
