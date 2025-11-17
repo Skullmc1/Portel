@@ -31,7 +31,17 @@ The configuration file is located at `plugins/Portel/config.yml`.
 port: 8080
 # The file that gets served when you access the root URL.
 index-file: index.html
+
+rate-limiting:
+  enabled: true
+  delay: 1000 # The delay in milliseconds between requests from the same IP address
 ```
+
+## Commands
+
+-   `/portel restart` - Restarts the web server.
+    -   Permission: `portel.restart`
+    -   Alias: `/p restart`
 
 ## Building from source
 

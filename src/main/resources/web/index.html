@@ -1,50 +1,169 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portel - Web Hosting on Minecraft</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Portel - Web Hosting on Minecraft</title>
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
 
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <section class="hero-section">
-        <div class="grid-background"></div>
-        <div class="content-wrapper">
-            <div class="title-container">
-                <h1 class="title-text">PORTEL</h1>
-                <div class="title-underline"></div>
-            </div>
-            <p class="subtitle-text">Websites hosted directly on Minecraft servers</p>
-        </div>
-        <div class="scroll-cta">Explore Portel</div>
-    </section>
-
-    <section class="info-section">
-        <div class="container">
-            <div class="info-header">
-                <div class="icon-wrapper">
-                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z"/>
-                    </svg>
+        <style>
+            @font-face {
+                font-family: "Minecraft";
+                src:
+                    url("fonts/Minecraft.otf") format("opentype"),
+                    url("fonts/Minecraft.ttf") format("truetype");
+            }
+        </style>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            bgp: "#000",
+                            bgs: "#0a0a0a",
+                            surf: "#111",
+                            t1: "#fff",
+                            t2: "#888",
+                            acc: "#6366f1",
+                            accg: "rgba(99,102,241,0.2)",
+                        },
+                        fontFamily: {
+                            title: ["Unbounded", "sans-serif"],
+                            body: ["Minecraft", "monospace"],
+                        },
+                        keyframes: {
+                            titleReveal: {
+                                "0%": {
+                                    opacity: "0",
+                                    transform: "translateY(30px)",
+                                },
+                                "100%": {
+                                    opacity: "1",
+                                    transform: "translateY(0)",
+                                },
+                            },
+                            underlineExpand: {
+                                "100%": { transform: "scaleX(1)" },
+                            },
+                            subtitleReveal: {
+                                "0%": {
+                                    opacity: "0",
+                                    transform: "translateY(20px)",
+                                },
+                                "100%": {
+                                    opacity: "1",
+                                    transform: "translateY(0)",
+                                },
+                            },
+                            float: {
+                                "0%,100%": { transform: "translateY(0)" },
+                                "50%": { transform: "translateY(-8px)" },
+                            },
+                        },
+                        animation: {
+                            titleReveal:
+                                "titleReveal 1.2s ease-out 0.5s forwards",
+                            underlineExpand:
+                                "underlineExpand 1s ease-out 1.2s forwards",
+                            subtitleReveal:
+                                "subtitleReveal 1s ease-out 1.5s forwards",
+                            float: "float 3s ease-in-out infinite",
+                        },
+                    },
+                },
+            };
+        </script>
+    </head>
+    <body class="bg-bgp text-t1 font-body leading-relaxed overflow-x-hidden">
+        <section
+            class="relative h-screen flex flex-col justify-center items-center text-center bg-gradient-to-br from-bgp to-bgs"
+        >
+            <div
+                class="absolute inset-0 opacity-20 z-0"
+                style="
+                    background:
+                        linear-gradient(
+                            rgba(99, 102, 241, 0.05) 1px,
+                            transparent 1px
+                        ),
+                        linear-gradient(
+                            90deg,
+                            rgba(99, 102, 241, 0.05) 1px,
+                            transparent 1px
+                        );
+                    background-size: 40px 40px;
+                "
+            ></div>
+            <div class="relative z-10">
+                <div class="mb-8">
+                    <h1
+                        class="font-title text-[clamp(3rem,8vw,6rem)] font-bold tracking-[0.2em] uppercase mb-2 opacity-0 animate-titleReveal"
+                    >
+                        PORTEL
+                    </h1>
+                    <div
+                        class="w-[120px] h-[2px] bg-acc mx-auto scale-x-0 animate-underlineExpand"
+                    ></div>
                 </div>
-                <h2>Ready to Begin</h2>
+                <p
+                    class="text-t2 text-[clamp(0.9rem,2vw,1.1rem)] max-w-[600px] mx-auto tracking-[0.1em] opacity-0 animate-subtitleReveal"
+                >
+                    Websites hosted directly on Minecraft servers
+                </p>
             </div>
-            <div class="info-content">
-                <p class="info-text">You're viewing the default Portel welcome page. The plugin is running successfully.</p>
-                <p class="info-text">To host your own content, simply <strong>edit or replace this file</strong> with your custom HTML.</p>
-                <div class="file-path">
-                    <span class="path-label">File location:</span>
-                    <code class="path-code">./plugins/Portel/web/index.html</code>
+            <div
+                class="absolute bottom-16 text-t2 text-xs uppercase tracking-[0.1em] animate-float"
+            >
+                Explore Portel
+            </div>
+        </section>
+        <section class="min-h-[60vh] px-8 py-32 bg-bgs border-t-2 border-surf">
+            <div class="max-w-[800px] mx-auto">
+                <div class="text-center mb-16">
+                    <div class="mb-4 flex justify-center">
+                        <svg
+                            class="w-12 h-12 text-acc drop-shadow-[0_0_8px_rgba(99,102,241,0.2)]"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                        >
+                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" />
+                        </svg>
+                    </div>
+                    <h2
+                        class="font-title text-2xl font-semibold uppercase tracking-[0.1em]"
+                    >
+                        Ready to Begin
+                    </h2>
+                </div>
+                <div class="bg-surf p-16 border border-[#222] mb-16">
+                    <p class="text-t2 mb-6 tracking-wide">
+                        You're viewing the default Portel welcome page. The
+                        plugin is running successfully.
+                    </p>
+                    <p class="text-t2 mb-6 tracking-wide">
+                        To host your own content, simply
+                        <strong class="text-acc"
+                            >edit or replace this file</strong
+                        >
+                        with your custom HTML.
+                    </p>
+                    <div class="bg-black p-8 border border-[#222] mt-12">
+                        <span
+                            class="block text-t2 text-xs uppercase tracking-[0.1em] mb-2"
+                            >File location:</span
+                        >
+                        <code class="text-acc text-sm tracking-wide"
+                            >./plugins/Portel/web/index.html</code
+                        >
+                    </div>
                 </div>
             </div>
-            <div class="logo-container">
-                <img src="assets/logo.png" alt="Portel Logo" class="plugin-logo">
-            </div>
-        </div>
-    </section>
-
-    <script src="script.js"></script>
-</body>
+        </section>
+        <script src="script.js"></script>
+    </body>
 </html>

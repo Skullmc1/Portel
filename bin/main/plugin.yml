@@ -1,8 +1,17 @@
 name: Portel
-version: '1.0.0'
+version: "1.1.1"
 main: com.qclid.portel.Portel
-api-version: '1.21'
+api-version: "1.21"
 prefix: Portel
-authors: [ Qclid ]
+authors: [Qclid]
 description: Website through minecraft server
 website: www.qclid.space
+commands:
+  portel:
+    description: Portel command
+    aliases: [p]
+    usage: /<command> [args]
+permissions:
+  portel.restart:
+    description: Allows to restart the web server
+    default: op

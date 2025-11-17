@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap");
 
 :root {
     --color-bg-primary: #000000;
@@ -8,10 +8,10 @@
     --color-text-secondary: #888888;
     --color-accent: #6366f1;
     --color-accent-glow: rgba(99, 102, 241, 0.2);
-    
-    --font-title: 'Unbounded', sans-serif;
-    --font-body: 'Minecraft', monospace;
-    
+
+    --font-title: "Unbounded", sans-serif;
+    --font-body: "Minecraft", monospace;
+
     --space-xs: 0.5rem;
     --space-sm: 1rem;
     --space-md: 2rem;
@@ -19,18 +19,19 @@
     --space-xl: 8rem;
 }
 
-    /* I actually don't think these fonts are available for commercial use so don't use these in you're own sites. If you have a problem with me using them please dm me on discord (v_late) and ill remove them ASAP */
+/* I actually don't think these fonts are available for commercial use so don't use these in you're own sites. If you have a problem with me using them please dm me on discord (v_late) and ill remove them ASAP */
 @font-face {
-    font-family: 'Minecraft';
-    src: url('fonts/Minecraft.otf') format('opentype'),
-         url('fonts/Minecraft.ttf') format('truetype');
+    font-family: "Minecraft";
+    src:
+        url("fonts/Minecraft.otf") format("opentype"),
+        url("fonts/Minecraft.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'Unbounded';
-    src: url('fonts/Unbounded.ttf') format('truetype');
+    font-family: "Unbounded";
+    src: url("fonts/Unbounded.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
 }
@@ -41,7 +42,8 @@
     padding: 0;
 }
 
-html, body {
+html,
+body {
     background-color: var(--color-bg-primary);
     color: var(--color-text-primary);
     font-family: var(--font-body);
@@ -58,7 +60,11 @@ html, body {
     align-items: center;
     text-align: center;
     position: relative;
-    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--color-bg-primary) 0%,
+        var(--color-bg-secondary) 100%
+    );
 }
 
 .grid-background {
@@ -67,7 +73,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
+    background:
         linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
     background-size: 40px 40px;
@@ -150,8 +156,13 @@ html, body {
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
 .info-section {
@@ -257,16 +268,16 @@ html, body {
         --space-lg: 2rem;
         --space-xl: 4rem;
     }
-    
+
     .info-content {
         padding: var(--space-md);
     }
-    
+
     .title-text {
         font-size: clamp(2rem, 12vw, 4rem);
         letter-spacing: 0.1em;
     }
-    
+
     .info-header h2 {
         font-size: 1.5rem;
     }

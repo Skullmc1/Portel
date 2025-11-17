@@ -4,7 +4,10 @@
 # Just make sure you use a port thats not the port the minecraft server is using (default 25565).
 # Also, make sure the index-file you choose actually exists in the web/ folder, otherwise you'll get a 404 error when accessing the root URL.
 
-
 # Have fun!
 port: 8080
 index-file: index.html
+
+rate-limiting:
+  enabled: true
+  delay: 1000 # The delay in milliseconds between requests from the same IP address
