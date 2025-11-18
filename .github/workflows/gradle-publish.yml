@@ -29,28 +29,13 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew shadowJar
 
-      - name: List files in build/libs
-        run: ls -R build/libs
-
-      - name: Create Release
-        id: create_release
+      - name: Release
         uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          files: ./build/libs/Portel-*.jar
           tag_name: ${{ github.run_number }}
           name: Release ${{ github.run_number }}
           body: |
             Automated release based on commit ${{ github.sha }}.
           draft: false
           prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/libs/Portel-*.jar
-          asset_name: Portel-${{ github.run_number }}.jar
-          asset_content_type: application/java-archive
