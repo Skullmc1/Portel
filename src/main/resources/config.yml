@@ -19,5 +19,7 @@ is_whitelist_on: false
 ip_list: []
 
 logging:
+  # Enable console logging, default is false
   console: false
+  # Enable IP logging to a file, default is true
   ip: true
