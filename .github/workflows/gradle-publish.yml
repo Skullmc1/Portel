@@ -31,7 +31,7 @@ jobs:
 
       - name: Get project version
         id: get_version
-        run: echo "version=$(grep version build.gradle | head -n 1 | cut -d"'" -f2)" >> $GITHUB_OUTPUT
+        run: echo "version=$(grep "version = '" build.gradle | cut -d"'" -f2)" >> $GITHUB_OUTPUT
 
       - name: Release
         uses: softprops/action-gh-release@v2
