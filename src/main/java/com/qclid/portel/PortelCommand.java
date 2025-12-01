@@ -4,6 +4,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import java.util.List;
+
 public class PortelCommand implements CommandExecutor {
 
     private final Portel plugin;
@@ -36,6 +38,12 @@ public class PortelCommand implements CommandExecutor {
                 break;
             case "reload":
                 handleReload(sender);
+                break;
+            case "whitelist":
+                handleWhitelist(sender, args);
+                break;
+            case "blacklist":
+                handleBlacklist(sender, args);
                 break;
             default:
                 chatStyler.sendMessage(
@@ -78,6 +86,81 @@ public class PortelCommand implements CommandExecutor {
         }
     }
 
+    private void handleWhitelist(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("portel.admin")) {
+            chatStyler.sendMessage(sender, "You don't have permission to do that.");
+            return;
+        }
+
+        if (args.length < 2) {
+            chatStyler.sendMessage(sender, "Usage: /portel whitelist <add/remove/list/on/off> [ip]");
+            return;
+        }
+
+        String action = args[1].toLowerCase();
+        List<String> ipList = plugin.getConfig().getStringList("ip_list");
+
+        switch (action) {
+            case "add":
+                if (args.length < 3) {
+                    chatStyler.sendMessage(sender, "Usage: /portel whitelist add <ip>");
+                    return;
+                }
+                String ipToAdd = args[2];
+                if (!ipList.contains(ipToAdd)) {
+                    ipList.add(ipToAdd);
+                    plugin.getConfig().set("ip_list", ipList);
+                    plugin.saveConfig();
+                    chatStyler.sendMessage(sender, "Added " + ipToAdd + " to the IP list.");
+                } else {
+                    chatStyler.sendMessage(sender, ipToAdd + " is already in the IP list.");
+                }
+                break;
+            case "remove":
+                if (args.length < 3) {
+                    chatStyler.sendMessage(sender, "Usage: /portel whitelist remove <ip>");
+                    return;
+                }
+                String ipToRemove = args[2];
+                if (ipList.contains(ipToRemove)) {
+                    ipList.remove(ipToRemove);
+                    plugin.getConfig().set("ip_list", ipList);
+                    plugin.saveConfig();
+                    chatStyler.sendMessage(sender, "Removed " + ipToRemove + " from the IP list.");
+                } else {
+                    chatStyler.sendMessage(sender, ipToRemove + " is not in the IP list.");
+                }
+                break;
+            case "list":
+                chatStyler.sendMessage(sender, "IP List: " + String.join(", ", ipList));
+                break;
+            case "on":
+                plugin.getConfig().set("is_whitelist_on", true);
+                plugin.saveConfig();
+                chatStyler.sendMessage(sender, "Whitelist mode enabled. Only IPs in the list can access the site.");
+                break;
+            case "off":
+                plugin.getConfig().set("is_whitelist_on", false);
+                plugin.saveConfig();
+                chatStyler.sendMessage(sender, "Whitelist mode disabled. IPs in the list are now BLOCKED (Blacklist mode).");
+                break;
+            default:
+                chatStyler.sendMessage(sender, "Usage: /portel whitelist <add/remove/list/on/off> [ip]");
+                break;
+        }
+    }
+    
+    private void handleBlacklist(CommandSender sender, String[] args) {
+         if (!sender.hasPermission("portel.admin")) {
+            chatStyler.sendMessage(sender, "You don't have permission to do that.");
+            return;
+        }
+        // Blacklist is just an alias for managing the same list but likely intending to turn whitelist OFF
+        chatStyler.sendMessage(sender, "Note: Portel uses a single IP list. Use '/portel whitelist off' to treat this list as a blacklist.");
+        handleWhitelist(sender, args);
+    }
+
+
     private void sendHelpMessage(CommandSender sender) {
         chatStyler.sendMessage(sender, "--------------------------------");
         chatStyler.sendMessage(
@@ -96,6 +179,10 @@ public class PortelCommand implements CommandExecutor {
         chatStyler.sendMessage(
             sender,
             "/portel reload - Reloads the configuration."
+        );
+        chatStyler.sendMessage(
+            sender,
+            "/portel whitelist <add/remove/list/on/off> - Manage IP access."
         );
         chatStyler.sendMessage(sender, "");
         chatStyler.sendMessage(

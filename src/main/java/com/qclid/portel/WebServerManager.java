@@ -27,6 +27,7 @@ public class WebServerManager {
     private final IPLogger ipLogger;
     private final RateLimiter rateLimiter;
     private final ErrorPageHandler errorPageHandler;
+    private final PlaceholderHook placeholderHook;
     private HttpServer server;
 
     public WebServerManager(
@@ -34,13 +35,15 @@ public class WebServerManager {
         ConsoleLogger logger,
         IPLogger ipLogger,
         RateLimiter rateLimiter,
-        ErrorPageHandler errorPageHandler
+        ErrorPageHandler errorPageHandler,
+        PlaceholderHook placeholderHook
     ) {
         this.plugin = plugin;
         this.logger = logger;
         this.ipLogger = ipLogger;
         this.rateLimiter = rateLimiter;
         this.errorPageHandler = errorPageHandler;
+        this.placeholderHook = placeholderHook;
     }
 
     public void start() throws IOException {
@@ -173,6 +176,10 @@ public class WebServerManager {
                     String content = Files.readString(file.toPath());
                     int wsPort = plugin.getConfig().getInt("websocket-port", plugin.getConfig().getInt("port") + 1);
                     content = content.replace("%WEBSOCKET_PORT%", String.valueOf(wsPort));
+                    
+                    // Process Placeholders
+                    content = placeholderHook.parse(content);
+
                     byte[] bytes = content.getBytes("UTF-8");
                     t.sendResponseHeaders(200, bytes.length);
                     OutputStream os = t.getResponseBody();
@@ -190,19 +197,24 @@ public class WebServerManager {
         }
 
         private String getMimeType(String fileName) {
-            if (fileName.endsWith(".css")) {
-                return "text/css";
-            } else if (fileName.endsWith(".js")) {
-                return "application/javascript";
-            } else if (fileName.endsWith(".png")) {
-                return "image/png";
-            } else if (fileName.endsWith(".ico")) {
-                return "image/x-icon";
-            } else if (fileName.endsWith(".ttf")) {
-                return "font/ttf";
-            } else if (fileName.endsWith(".otf")) {
-                return "font/otf";
-            }
+            String name = fileName.toLowerCase();
+            if (name.endsWith(".css")) return "text/css";
+            if (name.endsWith(".js")) return "application/javascript";
+            if (name.endsWith(".json")) return "application/json";
+            if (name.endsWith(".xml")) return "application/xml";
+            if (name.endsWith(".png")) return "image/png";
+            if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+            if (name.endsWith(".gif")) return "image/gif";
+            if (name.endsWith(".webp")) return "image/webp";
+            if (name.endsWith(".svg")) return "image/svg+xml";
+            if (name.endsWith(".ico")) return "image/x-icon";
+            if (name.endsWith(".ttf")) return "font/ttf";
+            if (name.endsWith(".otf")) return "font/otf";
+            if (name.endsWith(".woff")) return "font/woff";
+            if (name.endsWith(".woff2")) return "font/woff2";
+            if (name.endsWith(".txt")) return "text/plain";
+            if (name.endsWith(".mp3")) return "audio/mpeg";
+            if (name.endsWith(".mp4")) return "video/mp4";
             return "text/html";
         }
     }

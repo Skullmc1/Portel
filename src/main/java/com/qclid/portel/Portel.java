@@ -23,13 +23,21 @@ public final class Portel extends JavaPlugin {
         IPLogger ipLogger = new IPLogger(this, consoleLogger);
         RateLimiter rateLimiter = new RateLimiter(this);
         ErrorPageHandler errorPageHandler = new ErrorPageHandler(this);
+        PlaceholderHook placeholderHook = new PlaceholderHook();
+
+        if (placeholderHook.isEnabled()) {
+            consoleLogger.info("PlaceholderAPI found and hooked!");
+        } else {
+            consoleLogger.warning("PlaceholderAPI not found. Placeholders will not be parsed.");
+        }
 
         webServerManager = new WebServerManager(
             this,
             consoleLogger,
             ipLogger,
             rateLimiter,
-            errorPageHandler
+            errorPageHandler,
+            placeholderHook
         );
 
         try {

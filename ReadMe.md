@@ -49,6 +49,11 @@ logging:
 -   `/portel reload` - Reloads the configuration.
     -   Permission: `portel.reload`
 
+## Guides
+
+-   [WebSocket Support](websocket.md) - Learn how to use the real-time chat feature.
+-   [PlaceholderAPI Support](placeholders.md) - Integrate dynamic server information into your web pages.
+-   [HTTPS/SSL Support](ssl.md) - Secure your web server with SSL certificates.
 
 ## Building from source
 

@@ -6,6 +6,7 @@ prefix: Portel
 authors: [Qclid]
 description: Website through minecraft server
 website: www.qclid.space
+softdepend: [PlaceholderAPI]
 commands:
   portel:
     description: Portel command
@@ -17,4 +18,7 @@ permissions:
     default: op
   portel.reload:
     description: Allows to reload the configuration
+    default: op
+  portel.admin:
+    description: Allows access to all administrative commands including whitelist management
     default: op

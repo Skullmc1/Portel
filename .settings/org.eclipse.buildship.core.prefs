@@ -1,4 +1,4 @@
-arguments=--init-script C\:\\Users\\geesa\\AppData\\Local\\Zed\\extensions\\work\\java\\jdtls\\jdt-language-server-1.52.0-202510301627\\configuration\\org.eclipse.osgi\\58\\0\\.cp\\gradle\\init\\init.gradle
+arguments=--init-script C\:\\Users\\geesa\\AppData\\Local\\Zed\\extensions\\work\\java\\jdtls\\jdt-language-server-1.54.0-202511261751\\configuration\\org.eclipse.osgi\\58\\0\\.cp\\gradle\\init\\init.gradle
 auto.sync=false
 build.scans.enabled=false
 connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
