@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const wsPort = %WEBSOCKET_PORT%; 
     
-    const wsUrl = `ws://${window.location.hostname}:${wsPort}`;
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsUrl = `${protocol}://${window.location.hostname}:${wsPort}`;
     let ws;
     
     const chatMessages = document.getElementById('chat-messages');

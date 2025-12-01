@@ -9,6 +9,11 @@ port: 8080
 websocket-port: 8081
 index-file: index.html
 
+ssl:
+  enabled: false
+  keystore-path: "keystore.jks"
+  keystore-password: "password"
+
 rate-limiting:
   enabled: true
   delay: 1000 # The delay in milliseconds between requests from the same IP address

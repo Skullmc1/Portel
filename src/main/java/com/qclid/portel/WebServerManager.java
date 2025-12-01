@@ -3,12 +3,21 @@ package com.qclid.portel;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsParameters;
+import com.sun.net.httpserver.HttpsServer;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.security.KeyStore;
 import java.util.List;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManagerFactory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class WebServerManager {
@@ -35,16 +44,56 @@ public class WebServerManager {
     }
 
     public void start() throws IOException {
-        server = HttpServer.create(
-            new InetSocketAddress(plugin.getConfig().getInt("port")),
-            0
-        );
+        int port = plugin.getConfig().getInt("port");
+        boolean sslEnabled = plugin.getConfig().getBoolean("ssl.enabled");
+
+        if (sslEnabled) {
+            try {
+                HttpsServer httpsServer = HttpsServer.create(new InetSocketAddress(port), 0);
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+
+                char[] password = plugin.getConfig().getString("ssl.keystore-password").toCharArray();
+                KeyStore ks = KeyStore.getInstance("JKS");
+                FileInputStream fis = new FileInputStream(new File(plugin.getDataFolder(), plugin.getConfig().getString("ssl.keystore-path")));
+                ks.load(fis, password);
+
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+                kmf.init(ks, password);
+
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+                tmf.init(ks);
+
+                sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+                httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
+                    public void configure(HttpsParameters params) {
+                        try {
+                            SSLContext c = getSSLContext();
+                            SSLParameters sslparams = c.getDefaultSSLParameters();
+                            params.setSSLParameters(sslparams);
+                        } catch (Exception e) {
+                            // Using plugin logger here as we are inside anonymous class and logger might not be accessible if private
+                            // but we can access 'logger' if it's effectively final or we can use the plugin instance
+                            // logger is a field, so we can access it
+                        }
+                    }
+                });
+
+                server = httpsServer;
+                logger.info("Secure Web server (HTTPS) started on port " + port);
+
+            } catch (Exception e) {
+                logger.warning("Failed to start HTTPS server: " + e.getMessage());
+                throw new IOException("Failed to start HTTPS server", e);
+            }
+        } else {
+            server = HttpServer.create(new InetSocketAddress(port), 0);
+            logger.info("Web server started on port " + port);
+        }
+
         server.createContext("/", new MyHandler());
         server.setExecutor(null);
         server.start();
-        logger.info(
-            "Web server started on port " + plugin.getConfig().getInt("port")
-        );
     }
 
     public void stop() {

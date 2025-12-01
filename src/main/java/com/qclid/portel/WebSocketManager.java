@@ -5,9 +5,16 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.InetSocketAddress;
+import java.security.KeyStore;
 
 public class WebSocketManager extends WebSocketServer {
 
@@ -16,6 +23,33 @@ public class WebSocketManager extends WebSocketServer {
     public WebSocketManager(Portel plugin, int port) {
         super(new InetSocketAddress(port));
         this.plugin = plugin;
+        configureSSL();
+    }
+
+    private void configureSSL() {
+        if (plugin.getConfig().getBoolean("ssl.enabled")) {
+            try {
+                char[] password = plugin.getConfig().getString("ssl.keystore-password").toCharArray();
+                KeyStore ks = KeyStore.getInstance("JKS");
+                FileInputStream fis = new FileInputStream(new File(plugin.getDataFolder(), plugin.getConfig().getString("ssl.keystore-path")));
+                ks.load(fis, password);
+
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+                kmf.init(ks, password);
+
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+                tmf.init(ks);
+
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+                this.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sslContext));
+                plugin.getConsoleLogger().info("WebSocket configured for WSS (Secure WebSocket).");
+            } catch (Exception e) {
+                 plugin.getConsoleLogger().warning("Failed to configure SSL for WebSocket: " + e.getMessage());
+                 e.printStackTrace();
+            }
+        }
     }
 
     @Override

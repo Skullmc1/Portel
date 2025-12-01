@@ -6,8 +6,8 @@ This file outlines the future development goals for Portel.
 
 - [ ] **API Integration:** Develop a robust API allowing other plugins to register custom web endpoints (GET/POST) and handle requests programmatically.
 - [ ] **PlaceholderAPI Support:** Implement a simple templating engine that parses PlaceholderAPI placeholders in HTML files (e.g., displaying `%server_online%` or player stats on the hosted page).
-- [ ] **WebSocket Support:** Add WebSocket capabilities for real-time, bidirectional communication between the web interface and the Minecraft server (perfect for live server chats or consoles).
-- [ ] **HTTPS/SSL Support:** Implement support for keystores/SSL certificates to allow secure `https://` connections.
+- [x] **WebSocket Support:** Add WebSocket capabilities for real-time, bidirectional communication between the web interface and the Minecraft server (perfect for live server chats or consoles).
+- [x] **HTTPS/SSL Support:** Implement support for keystores/SSL certificates to allow secure `https://` connections.
 
 ## 🛠️ Core Improvements (Medium Priority)
 

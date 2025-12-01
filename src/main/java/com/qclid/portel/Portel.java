@@ -46,7 +46,8 @@ public final class Portel extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onServerLoad(ServerLoadEvent event) {
-                getLogger().info("Website started at: http://localhost:" + getConfig().getInt("port"));
+                String protocol = getConfig().getBoolean("ssl.enabled") ? "https" : "http";
+                getLogger().info("Website started at: " + protocol + "://localhost:" + getConfig().getInt("port"));
             }
         }, this);
 
