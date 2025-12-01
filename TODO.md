@@ -1,26 +1,22 @@
-# Portel TODO
+# Portel Roadmap
 
-This file contains a list of suggested features and improvements for the Portel plugin.
+This file outlines the future development goals for Portel.
 
-## High Priority
+## 🚀 Exciting Features (High Priority)
 
--   [x] **Security:** Implement a whitelist/blacklist system for IP addresses to control access to the web server.
--   [x] **Security:** Add rate limiting to prevent DoS attacks.
--   [x] **Feature:** Add an in-game command to manage the web server (e.g., `/portel start`, `/portel stop`, `/portel restart`, `/portel reload`).
--   [x] **Improvement:** Create a more user-friendly and customizable 404, 403 and 429 error pages.
--   [x] **Improvement:** Add configurable logging for console and IP logging.
+- [ ] **API Integration:** Develop a robust API allowing other plugins to register custom web endpoints (GET/POST) and handle requests programmatically.
+- [ ] **PlaceholderAPI Support:** Implement a simple templating engine that parses PlaceholderAPI placeholders in HTML files (e.g., displaying `%server_online%` or player stats on the hosted page).
+- [ ] **WebSocket Support:** Add WebSocket capabilities for real-time, bidirectional communication between the web interface and the Minecraft server (perfect for live server chats or consoles).
+- [ ] **HTTPS/SSL Support:** Implement support for keystores/SSL certificates to allow secure `https://` connections.
 
-## Medium Priority
+## 🛠️ Core Improvements (Medium Priority)
 
--   [ ] **Feature:** Implement directory listing, so if a user navigates to a directory, they see a list of files in that directory.
--   [ ] **Feature:** Add support for more file types. While most should work, explicitly testing and documenting support for common web file types would be beneficial.
--   [ ] **API:** Develop an API that allows other plugins to register their own web pages or endpoints with Portel.
--   [ ] **Feature:** Add a command to manage the whitelist/blacklist (e.g., `/portel whitelist add <ip>`, `/portel blacklist remove <ip>`).
+- [ ] **Web-Based Admin Panel:** Create a default, secured internal dashboard for admins to view logs, manage whitelists, and monitor server performance via the browser.
+- [ ] **Directory Listing:** Add a configurable option to enable directory indexing, allowing users to browse file hierarchies.
+- [ ] **Dynamic Management Commands:** Add commands to modify the whitelist/blacklist at runtime (e.g., `/portel whitelist add <ip>`).
 
-## Low Priority
+## 📝 Polish & Maintenance (Low Priority)
 
--   [ ] **Feature:** Explore the possibility of a simple templating engine to allow for dynamic content in web pages (e.g., displaying server status or player count).
--   [ ] **Feature:** Add an in-game file editor to allow admins to edit the website files directly from within Minecraft.
--   [ ] **Improvement:** Add more detailed logging to track requests and errors.
--   [ ] **Improvement:** Create a more comprehensive documentation for the plugin.
--   [ ] **Feature:** Add a command to view the IP log (e.g., `/portel iplog`).
+- [ ] **Smart MIME Types:** Enhance the `WebServerManager` to automatically detect and serve correct Content-Types for a broader range of file extensions (.webp, .svg, .json, etc.).
+- [ ] **Documentation:** specific documentation for API usage and configuration examples.
+- [ ] **Log Viewer:** Add a command (`/portel logs`) to view recent web access logs and security blocks in-game.

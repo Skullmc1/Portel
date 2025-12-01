@@ -6,6 +6,7 @@
 
 # Have fun!
 port: 8080
+websocket-port: 8081
 index-file: index.html
 
 rate-limiting:

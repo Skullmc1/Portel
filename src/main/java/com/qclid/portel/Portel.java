@@ -2,11 +2,15 @@ package com.qclid.portel;
 
 import java.io.IOException;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Portel extends JavaPlugin {
 
     private WebServerManager webServerManager;
+    private WebSocketManager wsManager;
     private ConsoleLogger consoleLogger;
     private BukkitAudiences adventure;
 
@@ -34,6 +38,18 @@ public final class Portel extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
+        int wsPort = getConfig().getInt("websocket-port", getConfig().getInt("port") + 1);
+        wsManager = new WebSocketManager(this, wsPort);
+        wsManager.start();
+        
+        getServer().getPluginManager().registerEvents(new ChatListener(wsManager), this);
+        getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onServerLoad(ServerLoadEvent event) {
+                getLogger().info("Website started at: http://localhost:" + getConfig().getInt("port"));
+            }
+        }, this);
+
         getCommand("portel").setExecutor(
             new PortelCommand(this, webServerManager)
         );
@@ -46,12 +62,30 @@ public final class Portel extends JavaPlugin {
             this.adventure = null;
         }
         webServerManager.stop();
+        if (wsManager != null) {
+            try {
+                wsManager.stop();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void reload() {
         reloadConfig();
         consoleLogger.info("Configuration reloaded.");
         webServerManager.restart();
+        
+        if (wsManager != null) {
+             try {
+                wsManager.stop();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            int wsPort = getConfig().getInt("websocket-port", getConfig().getInt("port") + 1);
+            wsManager = new WebSocketManager(this, wsPort);
+            wsManager.start();
+        }
     }
 
     public BukkitAudiences adventure() {
@@ -61,5 +95,9 @@ public final class Portel extends JavaPlugin {
             );
         }
         return this.adventure;
+    }
+
+    public ConsoleLogger getConsoleLogger() {
+        return consoleLogger;
     }
 }

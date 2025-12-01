@@ -164,6 +164,23 @@
                 </div>
             </div>
         </section>
+        <section class="px-8 py-16 bg-bgp border-t border-surf">
+            <div class="max-w-[800px] mx-auto">
+                 <div class="text-center mb-8">
+                    <h2 class="font-title text-2xl font-semibold uppercase tracking-[0.1em]">Live Server Chat</h2>
+                </div>
+                <div class="bg-surf border border-[#222] p-4 rounded-lg">
+                    <div id="chat-messages" class="h-64 overflow-y-auto font-body text-sm mb-4 p-4 bg-bgs border border-[#333] rounded text-left">
+                        <div class="text-t2 italic">Connecting to chat...</div>
+                    </div>
+                    <div class="flex gap-2">
+                         <input id="username-input" type="text" placeholder="Username" class="bg-bgs border border-[#333] text-t1 px-4 py-2 rounded w-32 focus:outline-none focus:border-acc font-body" />
+                        <input id="chat-input" type="text" placeholder="Type a message..." class="flex-1 bg-bgs border border-[#333] text-t1 px-4 py-2 rounded focus:outline-none focus:border-acc font-body" />
+                        <button id="send-btn" class="bg-acc text-white px-6 py-2 rounded font-title text-sm tracking-wide hover:bg-opacity-80 transition-colors">SEND</button>
+                    </div>
+                </div>
+            </div>
+        </section>
         <script src="script.js"></script>
     </body>
 </html>

@@ -119,10 +119,22 @@ public class WebServerManager {
             if (file.exists()) {
                 String mimeType = getMimeType(file.getName());
                 t.getResponseHeaders().set("Content-Type", mimeType);
-                t.sendResponseHeaders(200, file.length());
-                OutputStream os = t.getResponseBody();
-                Files.copy(file.toPath(), os);
-                os.close();
+
+                if (mimeType.equals("text/html") || mimeType.equals("application/javascript")) {
+                    String content = Files.readString(file.toPath());
+                    int wsPort = plugin.getConfig().getInt("websocket-port", plugin.getConfig().getInt("port") + 1);
+                    content = content.replace("%WEBSOCKET_PORT%", String.valueOf(wsPort));
+                    byte[] bytes = content.getBytes("UTF-8");
+                    t.sendResponseHeaders(200, bytes.length);
+                    OutputStream os = t.getResponseBody();
+                    os.write(bytes);
+                    os.close();
+                } else {
+                    t.sendResponseHeaders(200, file.length());
+                    OutputStream os = t.getResponseBody();
+                    Files.copy(file.toPath(), os);
+                    os.close();
+                }
             } else {
                 errorPageHandler.serve404(t);
             }
