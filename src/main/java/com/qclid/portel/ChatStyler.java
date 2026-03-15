@@ -21,4 +21,13 @@ public class ChatStyler {
         );
         plugin.adventure().sender(sender).sendMessage(component);
     }
+
+    public void sendRawMessage(CommandSender sender, String miniMessage) {
+        Component component = MiniMessage.miniMessage().deserialize(miniMessage);
+        plugin.adventure().sender(sender).sendMessage(component);
+    }
+
+    public void sendMessage(CommandSender sender, Component component) {
+        plugin.adventure().sender(sender).sendMessage(component);
+    }
 }

@@ -48,8 +48,10 @@ public class WebSocketManager extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        if (!plugin.getConfig().getBoolean("websocket.allow-web-to-game-chat", false)) {
-            plugin.getConsoleLogger().warning("Blocked unauthorized web-to-game message from " + conn.getRemoteSocketAddress());
+        plugin.getConsoleLogger().info("Web message received: " + message);
+
+        if (!plugin.getConfig().getBoolean("websocket.allow-web-to-game-chat", true)) {
+            plugin.getConsoleLogger().warning("Blocked unauthorized web-to-game message (check config.yml).");
             return;
         }
 
@@ -62,7 +64,7 @@ public class WebSocketManager extends WebSocketServer {
             contentText = parts[1];
         }
 
-        // 1. Broadcast to all web clients (including the sender)
+        // 1. Broadcast to all web clients (synchronized view)
         broadcastToWeb(sender, contentText);
 
         // 2. Deliver to in-game players
@@ -76,15 +78,16 @@ public class WebSocketManager extends WebSocketServer {
         NamedTextColor messageColor = NamedTextColor.NAMES.value(messageColorName.toLowerCase());
         if (messageColor == null) messageColor = NamedTextColor.LIGHT_PURPLE;
 
-        Component prefix = Component.text(prefixText, prefixColor);
-        Component userComp = Component.text(sender + ": ", prefixColor);
-        Component content = Component.text(contentText, messageColor);
+        Component finalMessage = Component.text()
+            .append(Component.text(prefixText, prefixColor))
+            .append(Component.text(sender + ": ", prefixColor))
+            .append(Component.text(contentText, messageColor))
+            .build();
 
-        Component finalMessage = prefix.append(userComp).append(content);
-
-        // Run on main thread to be safe with Bukkit API
+        // Run on main thread to ensure compatibility
         Bukkit.getScheduler().runTask(plugin, () -> {
-            plugin.adventure().all().sendMessage(finalMessage);
+            Bukkit.broadcast(finalMessage);
+            plugin.getConsoleLogger().info("Broadcasted web message to in-game chat.");
         });
     }
 

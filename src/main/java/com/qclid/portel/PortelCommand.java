@@ -1,5 +1,11 @@
 package com.qclid.portel;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -172,34 +178,43 @@ public class PortelCommand implements CommandExecutor {
 
 
     private void sendHelpMessage(CommandSender sender) {
-        chatStyler.sendMessage(sender, "--------------------------------");
-        chatStyler.sendMessage(
-            sender,
-            "Portel v" + plugin.getDescription().getVersion()
-        );
-        chatStyler.sendMessage(sender, "");
-        chatStyler.sendMessage(
-            sender,
-            "/portel help - Shows this help message."
-        );
-        chatStyler.sendMessage(
-            sender,
-            "/portel restart - Restarts the web server."
-        );
-        chatStyler.sendMessage(
-            sender,
-            "/portel reload - Reloads the configuration."
-        );
-        chatStyler.sendMessage(
-            sender,
-            "/portel whitelist <add/remove/list/on/off> - Manage IP access."
-        );
-        chatStyler.sendMessage(sender, "");
-        chatStyler.sendMessage(
-            sender,
-            "For more help, visit our GitHub repository:"
-        );
-        chatStyler.sendMessage(sender, "github.com/Skullmc1/Portel");
-        chatStyler.sendMessage(sender, "--------------------------------");
+        String version = plugin.getDescription().getVersion();
+        
+        chatStyler.sendRawMessage(sender, "<gray>--------------------------------");
+        
+        // Title line
+        chatStyler.sendMessage(sender, Component.text()
+            .append(Component.text("Portel", TextColor.color(0x8A2BE2)).decorate(TextDecoration.BOLD))
+            .append(Component.text(" v" + version, NamedTextColor.WHITE))
+            .hoverEvent(HoverEvent.showText(Component.text("Click to check version", NamedTextColor.GRAY)))
+            .clickEvent(ClickEvent.runCommand("/portel version"))
+            .asComponent());
+
+        chatStyler.sendMessage(sender, Component.empty());
+
+        // Commands
+        addCommandHelp(sender, "/portel help", "Shows this help message.", ClickEvent.suggestCommand("/portel help"));
+        addCommandHelp(sender, "/portel restart", "Restarts the web server.", ClickEvent.runCommand("/portel restart"));
+        addCommandHelp(sender, "/portel reload", "Reloads the configuration.", ClickEvent.runCommand("/portel reload"));
+        addCommandHelp(sender, "/portel whitelist", "Manage IP access.", ClickEvent.suggestCommand("/portel whitelist "));
+
+        chatStyler.sendMessage(sender, Component.empty());
+        chatStyler.sendMessage(sender, Component.text("For more help, visit our GitHub repository:", NamedTextColor.WHITE));
+        
+        // GitHub Link
+        chatStyler.sendMessage(sender, Component.text("github.com/Skullmc1/Portel", TextColor.color(0x8A2BE2))
+            .hoverEvent(HoverEvent.showText(Component.text("Click to open GitHub", NamedTextColor.GRAY)))
+            .clickEvent(ClickEvent.openUrl("https://github.com/Skullmc1/Portel")));
+
+        chatStyler.sendRawMessage(sender, "<gray>--------------------------------");
+    }
+
+    private void addCommandHelp(CommandSender sender, String cmd, String desc, ClickEvent event) {
+        chatStyler.sendMessage(sender, Component.text()
+            .append(Component.text(cmd, NamedTextColor.WHITE))
+            .append(Component.text(" - " + desc, NamedTextColor.GRAY))
+            .hoverEvent(HoverEvent.showText(Component.text("Click to interact", NamedTextColor.GRAY)))
+            .clickEvent(event)
+            .asComponent());
     }
 }
