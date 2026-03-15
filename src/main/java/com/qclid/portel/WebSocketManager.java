@@ -69,10 +69,7 @@ public class WebSocketManager extends WebSocketServer {
 
             plugin.getConsoleLogger().info("Processing message from [" + sender + "]: " + contentText);
 
-            // 1. Broadcast to all web clients (synchronized view)
-            broadcastToWeb(sender, contentText);
-
-            // 2. Deliver to in-game players
+            // 1. Deliver to in-game players (Using SmallFont, NO BOLD)
             String prefixText = plugin.getConfig().getString("websocket.chat-prefix", "[Web] ");
             String prefixColorName = plugin.getConfig().getString("websocket.prefix-color", "DARK_PURPLE");
             String messageColorName = plugin.getConfig().getString("websocket.message-color", "LIGHT_PURPLE");
@@ -83,12 +80,15 @@ public class WebSocketManager extends WebSocketServer {
             NamedTextColor messageColor = NamedTextColor.NAMES.value(messageColorName.toLowerCase());
             if (messageColor == null) messageColor = NamedTextColor.LIGHT_PURPLE;
 
-            // Professional format: [Web] Sender: Message
+            // Everything in SmallFont as requested
+            String formattedPrefix = SmallFont.toSmallFont(prefixText);
+            String formattedSender = SmallFont.toSmallFont(sender + ": ");
+            String formattedContent = SmallFont.toSmallFont(contentText);
+
             Component finalMessage = Component.text()
-                .append(Component.text(prefixText, prefixColor).decorate(TextDecoration.BOLD))
-                .append(Component.text(sender, NamedTextColor.WHITE))
-                .append(Component.text(": ", NamedTextColor.GRAY))
-                .append(Component.text(contentText, messageColor))
+                .append(Component.text(formattedPrefix, prefixColor))
+                .append(Component.text(formattedSender, NamedTextColor.WHITE))
+                .append(Component.text(formattedContent, messageColor))
                 .build();
 
             // Run on main thread to ensure compatibility
@@ -96,6 +96,9 @@ public class WebSocketManager extends WebSocketServer {
                 plugin.adventure().all().sendMessage(finalMessage);
                 plugin.getConsoleLogger().info("Message successfully sent to Adventure audiences.");
             });
+
+            // 2. Broadcast to web clients with source "web"
+            broadcastToWeb(sender, contentText, "web");
         } catch (Exception e) {
             plugin.getConsoleLogger().warning("Error processing web message: " + e.getMessage());
             e.printStackTrace();
@@ -113,16 +116,22 @@ public class WebSocketManager extends WebSocketServer {
     }
 
     public void broadcastToWeb(String sender, String message) {
-        broadcast(gson.toJson(new ChatMessage(sender, message)));
+        broadcastToWeb(sender, message, "game");
+    }
+
+    public void broadcastToWeb(String sender, String message, String source) {
+        broadcast(gson.toJson(new ChatMessage(sender, message, source)));
     }
 
     private static class ChatMessage {
         private final String sender;
         private final String message;
+        private final String source;
 
-        public ChatMessage(String sender, String message) {
+        public ChatMessage(String sender, String message, String source) {
             this.sender = sender;
             this.message = message;
+            this.source = source;
         }
     }
 }

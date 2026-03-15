@@ -25,19 +25,32 @@ document.addEventListener('DOMContentLoaded', () => {
             chatMessages.innerHTML = '';
             appendMessage("Connected to Server Chat!", "text-green-400");
         };
+ws.onmessage = (event) => {
+    try {
+        const data = JSON.parse(event.data);
+        // data: { sender: "Name", message: "msg", source: "web" | "game" }
+        const currentUser = usernameInput.value.trim() || "WebUser";
 
-        ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                // data: { sender: "Name", message: "msg" }
-                const currentUser = usernameInput.value.trim() || "WebUser";
-                const isSelf = data.sender === currentUser;
-                appendMessage(`[${data.sender}] ${data.message}`, isSelf ? 'text-acc' : 'text-t1');
-            } catch (e) {
-                // If not JSON, just display it
-                appendMessage(event.data);
-            }
-        };
+        // CRITICAL: Filter out game echoes of web messages to prevent duplicates
+        // If we sent it from web, we only want the 'source: web' broadcast.
+        // If it comes from 'source: game' but has a web-like format, it might be an echo.
+        if (data.source === "game" && (data.sender === "WebUser" || data.sender === currentUser)) {
+            console.log("Filtered out potential echo from game chat:", data);
+            return;
+        }
+
+        const isSelf = data.sender === currentUser;
+
+        // Clear the 'Connecting...' message if it's the first actual message
+        if (chatMessages.querySelector('.italic')) {
+            chatMessages.innerHTML = '';
+        }
+
+        appendMessage(`[${data.sender}] ${data.message}`, isSelf ? 'text-acc' : 'text-t1');
+    } catch (e) {
+        appendMessage(event.data);
+    }
+};
 
         ws.onclose = () => {
             appendMessage("Disconnected. Reconnecting in 3s...", "text-red-400");
