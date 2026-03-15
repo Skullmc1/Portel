@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -48,47 +49,57 @@ public class WebSocketManager extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        plugin.getConsoleLogger().info("Web message received: " + message);
+        plugin.getConsoleLogger().info("Web message raw data: " + message);
 
-        if (!plugin.getConfig().getBoolean("websocket.allow-web-to-game-chat", true)) {
-            plugin.getConsoleLogger().warning("Blocked unauthorized web-to-game message (check config.yml).");
-            return;
+        try {
+            boolean allowed = plugin.getConfig().getBoolean("websocket.allow-web-to-game-chat", true);
+            if (!allowed) {
+                plugin.getConsoleLogger().warning("Web-to-game chat is DISABLED in config.yml. Ignoring message from " + conn.getRemoteSocketAddress());
+                return;
+            }
+
+            // Parse "User: Message" format
+            String sender = "WebUser";
+            String contentText = message;
+            if (message.contains(": ")) {
+                String[] parts = message.split(": ", 2);
+                sender = parts[0];
+                contentText = parts[1];
+            }
+
+            plugin.getConsoleLogger().info("Processing message from [" + sender + "]: " + contentText);
+
+            // 1. Broadcast to all web clients (synchronized view)
+            broadcastToWeb(sender, contentText);
+
+            // 2. Deliver to in-game players
+            String prefixText = plugin.getConfig().getString("websocket.chat-prefix", "[Web] ");
+            String prefixColorName = plugin.getConfig().getString("websocket.prefix-color", "DARK_PURPLE");
+            String messageColorName = plugin.getConfig().getString("websocket.message-color", "LIGHT_PURPLE");
+
+            NamedTextColor prefixColor = NamedTextColor.NAMES.value(prefixColorName.toLowerCase());
+            if (prefixColor == null) prefixColor = NamedTextColor.DARK_PURPLE;
+            
+            NamedTextColor messageColor = NamedTextColor.NAMES.value(messageColorName.toLowerCase());
+            if (messageColor == null) messageColor = NamedTextColor.LIGHT_PURPLE;
+
+            // Professional format: [Web] Sender: Message
+            Component finalMessage = Component.text()
+                .append(Component.text(prefixText, prefixColor).decorate(TextDecoration.BOLD))
+                .append(Component.text(sender, NamedTextColor.WHITE))
+                .append(Component.text(": ", NamedTextColor.GRAY))
+                .append(Component.text(contentText, messageColor))
+                .build();
+
+            // Run on main thread to ensure compatibility
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                plugin.adventure().all().sendMessage(finalMessage);
+                plugin.getConsoleLogger().info("Message successfully sent to Adventure audiences.");
+            });
+        } catch (Exception e) {
+            plugin.getConsoleLogger().warning("Error processing web message: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        // Parse "User: Message" format
-        String sender = "WebUser";
-        String contentText = message;
-        if (message.contains(": ")) {
-            String[] parts = message.split(": ", 2);
-            sender = parts[0];
-            contentText = parts[1];
-        }
-
-        // 1. Broadcast to all web clients (synchronized view)
-        broadcastToWeb(sender, contentText);
-
-        // 2. Deliver to in-game players
-        String prefixText = plugin.getConfig().getString("websocket.chat-prefix", "[Portel] * ");
-        String prefixColorName = plugin.getConfig().getString("websocket.prefix-color", "DARK_PURPLE");
-        String messageColorName = plugin.getConfig().getString("websocket.message-color", "LIGHT_PURPLE");
-
-        NamedTextColor prefixColor = NamedTextColor.NAMES.value(prefixColorName.toLowerCase());
-        if (prefixColor == null) prefixColor = NamedTextColor.DARK_PURPLE;
-        
-        NamedTextColor messageColor = NamedTextColor.NAMES.value(messageColorName.toLowerCase());
-        if (messageColor == null) messageColor = NamedTextColor.LIGHT_PURPLE;
-
-        Component finalMessage = Component.text()
-            .append(Component.text(prefixText, prefixColor))
-            .append(Component.text(sender + ": ", prefixColor))
-            .append(Component.text(contentText, messageColor))
-            .build();
-
-        // Run on main thread to ensure compatibility
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            Bukkit.broadcast(finalMessage);
-            plugin.getConsoleLogger().info("Broadcasted web message to in-game chat.");
-        });
     }
 
     @Override

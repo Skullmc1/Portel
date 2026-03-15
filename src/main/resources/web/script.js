@@ -1,8 +1,16 @@
+console.log("Portel script loading...");
+
 document.addEventListener('DOMContentLoaded', () => {
-    const wsPort = %WEBSOCKET_PORT%; 
+    console.log("Portel DOM Content Loaded");
+    const wsPort = "%WEBSOCKET_PORT%"; 
     
+    if (wsPort === "%" + "WEBSOCKET_PORT" + "%") {
+        console.error("CRITICAL: WebSocket port placeholder was not replaced by the server! WebSocket will fail.");
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const wsUrl = `${protocol}://${window.location.hostname}:${wsPort}`;
+    console.log("Connecting to WebSocket at:", wsUrl);
     let ws;
     
     const chatMessages = document.getElementById('chat-messages');
@@ -57,7 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (msg && ws && ws.readyState === WebSocket.OPEN) {
             ws.send(`${user}: ${msg}`);
             chatInput.value = '';
-            // No optimistic append, wait for server broadcast for sync
+        } else {
+            console.warn("Cannot send message. WS State:", ws ? ws.readyState : "null");
         }
     }
 

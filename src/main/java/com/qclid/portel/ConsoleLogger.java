@@ -11,14 +11,13 @@ public class ConsoleLogger {
     }
 
     public void info(String message) {
-        if (plugin.getConfig().getBoolean("logging.console")) {
+        if (plugin.getConfig().getBoolean("logging.console", true)) {
             plugin.getLogger().info(message);
         }
     }
 
     public void warning(String message) {
-        if (plugin.getConfig().getBoolean("logging.console")) {
-            plugin.getLogger().warning(message);
-        }
+        // Warnings and errors should probably always be printed for plugin stability
+        plugin.getLogger().warning(message);
     }
 }
