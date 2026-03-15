@@ -130,13 +130,19 @@ $COPY_PLUGIN_CONTENT = @"
 # copy-plugin.ps1
 Write-Host "Building plugin..." -ForegroundColor Cyan
 ./gradlew shadowJar
-`$expectedJar = "build/libs/Portel-$PROJECT_VERSION.jar"
+
+# Detect version dynamically
+`$gradleProps = ./gradlew properties -q | Out-String
+`$versionLine = `$gradleProps -split "``r?`n" | Where-Object { `$_.StartsWith("version:") }
+`$CURRENT_VERSION = (`$versionLine -replace "version: ", "").Trim()
+
+`$expectedJar = "build/libs/Portel-`$CURRENT_VERSION.jar"
 if (Test-Path `$expectedJar) {
     if (-not (Test-Path "test-server/plugins")) { New-Item -ItemType Directory -Path "test-server/plugins" }
     Copy-Item `$expectedJar "test-server/plugins/Portel.jar" -Force
-    Write-Host "Plugin v$PROJECT_VERSION copied to test server." -ForegroundColor Green
+    Write-Host "Plugin v`$CURRENT_VERSION copied to test server." -ForegroundColor Green
 } else {
-    Write-Error "JAR not found."
+    Write-Error "JAR not found at `$expectedJar"
 }
 "@
 Set-Content -Path "copy-plugin.ps1" -Value $COPY_PLUGIN_CONTENT

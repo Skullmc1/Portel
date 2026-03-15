@@ -165,14 +165,11 @@ public class WebServerManager {
                     String content = Files.readString(file.toPath());
                     int wsPort = plugin.getConfig().getInt("websocket-port", plugin.getConfig().getInt("port") + 1);
                     
-                    int initialLen = content.length();
                     content = content.replace("%WEBSOCKET_PORT%", String.valueOf(wsPort));
                     
                     // Process Placeholders
                     content = placeholderHook.parse(content);
                     
-                    logger.info("Processed dynamic content for: " + file.getName() + " (WS Port: " + wsPort + ")");
-
                     byte[] bytes = content.getBytes("UTF-8");
                     t.sendResponseHeaders(200, bytes.length);
                     try (OutputStream os = t.getResponseBody()) {

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-03-15
+
+### Added
+-   **Minimalist UI**: Completely redesigned the web interface with a focus on typography, intentional whitespace, and a unique aesthetic.
+-   **Clickable Commands**: The `/portel` help menu now features fully interactive, clickable subcommands and links.
+-   **SmallFont Consistency**: Applied `SmallFont` formatting across all in-game messages and command outputs.
+-   **Source Filtering**: Added source tracking to WebSocket messages to prevent duplicate display on the web interface.
+
+### Changed
+-   Refactored `PortelCommand` to use the Adventure `Component` API for more robust event handling.
+-   Cleaned up console output by removing verbose debug and serving logs.
+-   Organized project documentation into a dedicated `guides/` directory.
+
 ## [1.6.0] - 2026-03-15
 
 ### Added

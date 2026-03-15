@@ -49,12 +49,9 @@ public class WebSocketManager extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        plugin.getConsoleLogger().info("Web message raw data: " + message);
-
         try {
             boolean allowed = plugin.getConfig().getBoolean("websocket.allow-web-to-game-chat", true);
             if (!allowed) {
-                plugin.getConsoleLogger().warning("Web-to-game chat is DISABLED in config.yml. Ignoring message from " + conn.getRemoteSocketAddress());
                 return;
             }
 
@@ -66,8 +63,6 @@ public class WebSocketManager extends WebSocketServer {
                 sender = parts[0];
                 contentText = parts[1];
             }
-
-            plugin.getConsoleLogger().info("Processing message from [" + sender + "]: " + contentText);
 
             // 1. Deliver to in-game players (Using SmallFont, NO BOLD)
             String prefixText = plugin.getConfig().getString("websocket.chat-prefix", "[Web] ");
@@ -94,14 +89,12 @@ public class WebSocketManager extends WebSocketServer {
             // Run on main thread to ensure compatibility
             Bukkit.getScheduler().runTask(plugin, () -> {
                 plugin.adventure().all().sendMessage(finalMessage);
-                plugin.getConsoleLogger().info("Message successfully sent to Adventure audiences.");
             });
 
             // 2. Broadcast to web clients with source "web"
             broadcastToWeb(sender, contentText, "web");
         } catch (Exception e) {
             plugin.getConsoleLogger().warning("Error processing web message: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

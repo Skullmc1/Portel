@@ -12,8 +12,8 @@ Portel is a Minecraft plugin that allows you to host a simple website directly f
 -   **Simplicity:** Portel is designed to be easy to use. Simply drop the plugin into your server's `plugins` folder and you're ready to go. No complex setup or configuration required.
 -   **Performance:** Portel is built to be lightweight and efficient. It uses Java's built-in HTTP server to minimize resource usage, ensuring that your server's performance is not affected.
 -   **Customization:** Portel gives you full control over your website. You can create your own HTML, CSS, and JavaScript files to build a unique website that reflects your server's identity. You can also create custom error pages for 403, 404, and 429 errors.
--   **Security:** Portel includes a whitelist/blacklist system to control access to your website. It also has a rate-limiting feature to prevent DoS attacks.
--   **Real-time updates:** Changes to your website files are reflected in real-time with the `/portel reload` command.
+-   **Security:** Portel includes a whitelist/blacklist system to control access to your website. It also has a path-traversal protection and a rate-limiting feature to prevent abuse.
+-   **Real-time updates:** Changes to your website files are reflected in real-time with automatic **Hot-Reloading**.
 -   **No external hosting required:** Host your website directly on your Minecraft server, eliminating the need for a separate web hosting service.
 
 ## Configuration
@@ -21,39 +21,50 @@ Portel is a Minecraft plugin that allows you to host a simple website directly f
 The configuration file is located at `plugins/Portel/config.yml`.
 
 ```yaml
-# The port the web server runs on.
 port: 8080
-# The file that gets served when you access the root URL.
+websocket-port: 8081
 index-file: index.html
+# Automatically clear cache when files in web/ directory are modified.
+hot-reloading: true
 
-rate-limiting:
-  enabled: true
-  delay: 1000 # The delay in milliseconds between requests from the same IP address
+ssl:
+  enabled: false
+  keystore-path: "keystore.jks"
+  keystore-password: "password"
 
-# Whitelist/Blacklist configuration
-# If is_whitelist_on is true, only IPs in the ip_list will be allowed.
-# If is_whitelist_on is false, IPs in the ip_list will be blocked.
-is_whitelist_on: false
-ip_list: []
+websocket:
+  # Enable web users to send messages to the Minecraft server
+  allow-web-to-game-chat: true
+  # Formatting for web-to-game messages
+  chat-prefix: "[Web] "
+  prefix-color: "DARK_PURPLE"
+  message-color: "LIGHT_PURPLE"
 
 logging:
-  console: false
+  # Enable console logging
+  console: true
+  # Enable IP logging to a file
   ip: true
+  # File name for IP logging
+  ip-log-file: "ips.log"
 ```
 
 ## Commands
 
--   `/portel help` - Shows the help message.
+-   `/portel help` - Shows the interactive help message.
 -   `/portel restart` - Restarts the web server.
     -   Permission: `portel.restart`
 -   `/portel reload` - Reloads the configuration.
     -   Permission: `portel.reload`
+-   `/portel version` - Displays the current version.
+-   `/portel whitelist <add/remove/list/on/off> [ip]` - Manage IP access.
+    -   Permission: `portel.admin`
 
 ## Guides
 
--   [WebSocket Support](websocket.md) - Learn how to use the real-time chat feature.
--   [PlaceholderAPI Support](placeholders.md) - Integrate dynamic server information into your web pages.
--   [HTTPS/SSL Support](ssl.md) - Secure your web server with SSL certificates.
+-   [WebSocket Support](guides/websocket.md) - Learn how to use the real-time chat feature.
+-   [PlaceholderAPI Support](guides/placeholders.md) - Integrate dynamic server information into your web pages.
+-   [HTTPS/SSL Support](guides/ssl.md) - Secure your web server with SSL certificates.
 
 ## Building from source
 

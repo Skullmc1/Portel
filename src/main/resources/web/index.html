@@ -3,198 +3,386 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Portel - Web Hosting on Minecraft</title>
+        <title>Portel</title>
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <script src="https://cdn.tailwindcss.com"></script>
         <link
-            href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;800&family=Inter:wght@300;400;600&family=Space+Grotesk:wght@400;600&display=swap"
             rel="stylesheet"
         />
 
         <style>
             @font-face {
                 font-family: "Minecraft";
-                src:
-                    url("fonts/Minecraft.otf") format("opentype"),
-                    url("fonts/Minecraft.ttf") format("truetype");
+                src: url("fonts/Minecraft.otf") format("opentype");
+            }
+
+            :root {
+                --accent: #8a2be2;
+                --bg: #080808;
+            }
+
+            body {
+                font-family: "Inter", sans-serif;
+                background-color: var(--bg);
+                color: #a3a3a3;
+                overflow-x: hidden;
+            }
+
+            .font-title {
+                font-family: "Unbounded", sans-serif;
+            }
+            .font-mc {
+                font-family: "Minecraft", monospace;
+            }
+            .font-tech {
+                font-family: "Space Grotesk", sans-serif;
+            }
+
+            ::-webkit-scrollbar {
+                width: 6px;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #222;
+                border-radius: 10px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--accent);
+                box-shadow: 0 0 10px var(--accent);
+            }
+
+            .section-border {
+                border-top: 1px solid rgba(138, 43, 226, 0.15);
+            }
+
+            .chat-input-reset {
+                background: transparent;
+                border: none;
+                outline: none;
+                color: white;
+            }
+
+            .placeholder-slot {
+                min-width: 120px;
+                display: inline-block;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes float {
+                0% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+                100% {
+                    transform: translateY(0px);
+                }
+            }
+
+            @keyframes pulseGlow {
+                0% {
+                    text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+                }
+                50% {
+                    text-shadow: 0 0 30px rgba(138, 43, 226, 1);
+                }
+                100% {
+                    text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+                }
+            }
+
+            .animate-fade {
+                animation: fadeIn 0.8s ease-out forwards;
+                opacity: 0;
+            }
+
+            .delay-100 {
+                animation-delay: 0.1s;
+            }
+            .delay-200 {
+                animation-delay: 0.2s;
+            }
+            .delay-300 {
+                animation-delay: 0.3s;
+            }
+
+            .glow-text {
+                animation: pulseGlow 3s infinite;
+            }
+
+            .purple-blob {
+                position: absolute;
+                width: 50vw;
+                height: 50vw;
+                background: radial-gradient(
+                    circle,
+                    rgba(138, 43, 226, 0.15) 0%,
+                    rgba(8, 8, 8, 0) 70%
+                );
+                top: -20vh;
+                right: -20vw;
+                z-index: -1;
+                border-radius: 50%;
+                animation: float 6s ease-in-out infinite;
+                pointer-events: none;
+            }
+
+            .hover-card {
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .hover-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 10px 40px -10px rgba(138, 43, 226, 0.3);
+                border-color: rgba(138, 43, 226, 0.5);
             }
         </style>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            bgp: "#000",
-                            bgs: "#0a0a0a",
-                            surf: "#111",
-                            t1: "#fff",
-                            t2: "#888",
-                            acc: "#6366f1",
-                            accg: "rgba(99,102,241,0.2)",
-                        },
-                        fontFamily: {
-                            title: ["Unbounded", "sans-serif"],
-                            body: ["Minecraft", "monospace"],
-                        },
-                        keyframes: {
-                            titleReveal: {
-                                "0%": {
-                                    opacity: "0",
-                                    transform: "translateY(30px)",
-                                },
-                                "100%": {
-                                    opacity: "1",
-                                    transform: "translateY(0)",
-                                },
-                            },
-                            underlineExpand: {
-                                "100%": { transform: "scaleX(1)" },
-                            },
-                            subtitleReveal: {
-                                "0%": {
-                                    opacity: "0",
-                                    transform: "translateY(20px)",
-                                },
-                                "100%": {
-                                    opacity: "1",
-                                    transform: "translateY(0)",
-                                },
-                            },
-                            float: {
-                                "0%,100%": { transform: "translateY(0)" },
-                                "50%": { transform: "translateY(-8px)" },
-                            },
-                        },
-                        animation: {
-                            titleReveal:
-                                "titleReveal 1.2s ease-out 0.5s forwards",
-                            underlineExpand:
-                                "underlineExpand 1s ease-out 1.2s forwards",
-                            subtitleReveal:
-                                "subtitleReveal 1s ease-out 1.5s forwards",
-                            float: "float 3s ease-in-out infinite",
-                        },
-                    },
-                },
-            };
-        </script>
     </head>
-    <body class="bg-bgp text-t1 font-body leading-relaxed overflow-x-hidden">
+    <body
+        class="antialiased selection:bg-[#8A2BE2] selection:text-white relative"
+    >
+        <div class="purple-blob"></div>
+
         <section
-            class="relative h-screen flex flex-col justify-center items-center text-center bg-gradient-to-br from-bgp to-bgs"
+            class="min-h-[90vh] flex flex-col justify-center px-10 md:px-24 animate-fade"
         >
-            <div
-                class="absolute inset-0 opacity-20 z-0"
-                style="
-                    background:
-                        linear-gradient(
-                            rgba(99, 102, 241, 0.05) 1px,
-                            transparent 1px
-                        ),
-                        linear-gradient(
-                            90deg,
-                            rgba(99, 102, 241, 0.05) 1px,
-                            transparent 1px
-                        );
-                    background-size: 40px 40px;
-                "
-            ></div>
-            <div class="relative z-10">
-                <div class="mb-8">
-                    <h1
-                        class="font-title text-[clamp(3rem,8vw,6rem)] font-bold tracking-[0.2em] uppercase mb-2 opacity-0 animate-titleReveal"
-                    >
-                        PORTEL
-                    </h1>
-                    <div
-                        class="w-[120px] h-[2px] bg-acc mx-auto scale-x-0 animate-underlineExpand"
-                    ></div>
-                </div>
-                <p
-                    class="text-t2 text-[clamp(0.9rem,2vw,1.1rem)] max-w-[600px] mx-auto tracking-[0.1em] opacity-0 animate-subtitleReveal"
+            <h1
+                class="font-title text-white text-7xl md:text-[10rem] font-extrabold tracking-tighter leading-none mb-12"
+            >
+                PORTEL<span class="text-[#8A2BE2] glow-text">.</span>
+            </h1>
+            <p
+                class="max-w-xl text-xl md:text-2xl font-light leading-relaxed text-gray-300 animate-fade delay-100"
+            >
+                A bridge between your server and the web. <br />
+                Simple, integrated, and open.
+            </p>
+        </section>
+
+        <section
+            id="stats"
+            class="px-10 md:px-24 py-32 section-border relative overflow-hidden"
+        >
+            <div class="mb-16 animate-fade delay-200">
+                <span
+                    class="text-[10px] tracking-[0.3em] uppercase text-[#8A2BE2] block mb-2 font-bold"
+                    >Metrics</span
                 >
-                    Websites hosted directly on Minecraft servers
+                <p class="text-xs text-gray-500 italic">
+                    Note: PlaceholderAPI is required to display live server
+                    data.
                 </p>
             </div>
             <div
-                class="absolute bottom-16 text-t2 text-xs uppercase tracking-[0.1em] animate-float"
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-24"
             >
-                Explore Portel
-            </div>
-        </section>
-        <section class="min-h-[60vh] px-8 py-32 bg-bgs border-t-2 border-surf">
-            <div class="max-w-[800px] mx-auto">
-                <div class="text-center mb-16">
-                    <div class="mb-4 flex justify-center">
-                        <svg
-                            class="w-12 h-12 text-acc drop-shadow-[0_0_8px_rgba(99,102,241,0.2)]"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                        >
-                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" />
-                        </svg>
-                    </div>
-                    <h2
-                        class="font-title text-2xl font-semibold uppercase tracking-[0.1em]"
+                <div
+                    class="hover-card bg-[#0d0d0d] p-8 rounded-2xl border border-gray-900 animate-fade delay-100"
+                >
+                    <span
+                        class="text-[10px] tracking-[0.3em] uppercase text-gray-500 block mb-6"
+                        >Online</span
                     >
-                        Ready to Begin
-                    </h2>
-                </div>
-                <div class="bg-surf p-16 border border-[#222] mb-16">
-                    <p class="text-t2 mb-6 tracking-wide">
-                        You're viewing the default Portel welcome page. The
-                        plugin is running successfully.
-                    </p>
-                    <p class="text-t2 mb-6 tracking-wide">
-                        To host your own content, simply
-                        <strong class="text-acc"
-                            >edit or replace this file</strong
-                        >
-                        with your custom HTML.
-                    </p>
-                    <p class="text-t2 mb-6 tracking-wide mt-8 border-t border-[#333] pt-8">
-                        <strong class="text-acc">PlaceholderAPI Support:</strong><br>
-                        If you have PlaceholderAPI installed with the 'Server' expansion, you can see dynamic stats here:
-                    </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                        <div class="bg-bgs p-4 border border-[#333] rounded">
-                             <span class="text-t2 text-xs uppercase">RAM Usage</span><br>
-                             <span class="text-acc">%server_ram_used% / %server_ram_max% MB</span>
-                        </div>
-                        <div class="bg-bgs p-4 border border-[#333] rounded">
-                             <span class="text-t2 text-xs uppercase">Online Players</span><br>
-                             <span class="text-acc">%server_online% / %server_max_players%</span>
-                        </div>
+                    <div
+                        class="font-tech text-4xl text-white placeholder-slot font-semibold"
+                    >
+                        %server_online%
+                        <span class="text-[#8A2BE2] text-2xl">/</span>
+                        %server_max_players%
                     </div>
-                    <div class="bg-black p-8 border border-[#222] mt-12">
-                        <span
-                            class="block text-t2 text-xs uppercase tracking-[0.1em] mb-2"
-                            >File location:</span
-                        >
-                        <code class="text-acc text-sm tracking-wide"
-                            >./plugins/Portel/web/index.html</code
-                        >
+                </div>
+                <div
+                    class="hover-card bg-[#0d0d0d] p-8 rounded-2xl border border-gray-900 animate-fade delay-200"
+                >
+                    <span
+                        class="text-[10px] tracking-[0.3em] uppercase text-gray-500 block mb-6"
+                        >Performance</span
+                    >
+                    <div
+                        class="font-tech text-4xl text-white placeholder-slot font-semibold"
+                    >
+                        %server_tps%
+                        <span class="text-[#8A2BE2] text-lg">TPS</span>
+                    </div>
+                </div>
+                <div
+                    class="hover-card bg-[#0d0d0d] p-8 rounded-2xl border border-gray-900 animate-fade delay-300"
+                >
+                    <span
+                        class="text-[10px] tracking-[0.3em] uppercase text-gray-500 block mb-6"
+                        >Resource</span
+                    >
+                    <div
+                        class="font-tech text-4xl text-white placeholder-slot font-semibold"
+                    >
+                        %server_ram_used%
+                        <span class="text-[#8A2BE2] text-lg">MB</span>
                     </div>
                 </div>
             </div>
         </section>
-        <section class="px-8 py-16 bg-bgp border-t border-surf">
-            <div class="max-w-[800px] mx-auto">
-                 <div class="text-center mb-8">
-                    <h2 class="font-title text-2xl font-semibold uppercase tracking-[0.1em]">Live Server Chat</h2>
+
+        <section
+            id="chat"
+            class="px-10 md:px-24 py-32 section-border bg-gradient-to-b from-transparent to-[#0a0212]"
+        >
+            <div class="mb-16">
+                <span
+                    class="text-[10px] tracking-[0.3em] uppercase text-[#8A2BE2] block mb-2 font-bold"
+                    >Chat</span
+                >
+                <div
+                    id="chat-status-text"
+                    class="text-xs font-tech font-semibold transition-colors duration-300"
+                >
+                    Connecting
                 </div>
-                <div class="bg-surf border border-[#222] p-4 rounded-lg">
-                    <div id="chat-messages" class="h-64 overflow-y-auto font-body text-sm mb-4 p-4 bg-bgs border border-[#333] rounded text-left">
-                        <div class="text-t2 italic">Connecting to chat...</div>
+            </div>
+
+            <div
+                class="grid grid-cols-1 lg:grid-cols-12 gap-12 bg-[#080808] border border-gray-900 rounded-3xl p-8 hover-card"
+            >
+                <div
+                    id="chat-messages"
+                    class="lg:col-span-8 h-[500px] overflow-y-auto font-mc text-sm space-y-4 pr-8 scroll-smooth"
+                ></div>
+
+                <div
+                    class="lg:col-span-4 space-y-12 flex flex-col justify-between"
+                >
+                    <div class="space-y-8">
+                        <div class="space-y-4 group">
+                            <label
+                                class="text-[10px] tracking-[0.3em] uppercase text-[#8A2BE2] block font-bold transition-colors"
+                                >Username</label
+                            >
+                            <input
+                                id="username-input"
+                                type="text"
+                                placeholder="Identity..."
+                                class="chat-input-reset font-tech text-lg w-full border-b border-gray-800 pb-3 focus:border-[#8A2BE2] transition-all focus:bg-[#11051c] focus:px-4 focus:rounded-t-md"
+                            />
+                        </div>
+                        <div class="space-y-4 group">
+                            <label
+                                class="text-[10px] tracking-[0.3em] uppercase text-[#8A2BE2] block font-bold transition-colors"
+                                >Message</label
+                            >
+                            <textarea
+                                id="chat-input"
+                                placeholder="Write something..."
+                                class="chat-input-reset font-tech text-lg w-full h-32 border-b border-gray-800 focus:border-[#8A2BE2] transition-all resize-none focus:bg-[#11051c] focus:p-4 focus:rounded-t-md"
+                            ></textarea>
+                        </div>
                     </div>
-                    <div class="flex gap-2">
-                         <input id="username-input" type="text" placeholder="Username" class="bg-bgs border border-[#333] text-t1 px-4 py-2 rounded w-32 focus:outline-none focus:border-acc font-body" />
-                        <input id="chat-input" type="text" placeholder="Type a message..." class="flex-1 bg-bgs border border-[#333] text-t1 px-4 py-2 rounded focus:outline-none focus:border-acc font-body" />
-                        <button id="send-btn" class="bg-acc text-white px-6 py-2 rounded font-title text-sm tracking-wide hover:bg-opacity-80 transition-colors">SEND</button>
-                    </div>
+                    <button
+                        id="send-btn"
+                        class="w-full py-5 bg-white text-black rounded-xl font-title font-bold text-xs uppercase tracking-widest hover:bg-[#8A2BE2] hover:text-white hover:shadow-[0_0_20px_rgba(138,43,226,0.6)] transform hover:-translate-y-1 transition-all duration-300"
+                    >
+                        Send Message
+                    </button>
                 </div>
             </div>
         </section>
+
+        <section id="features" class="px-10 md:px-24 py-32 section-border">
+            <span
+                class="text-[10px] tracking-[0.3em] uppercase text-[#8A2BE2] block mb-16 font-bold text-center"
+                >Capabilities</span
+            >
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                <div
+                    class="space-y-4 hover-card bg-[#0d0d0d] p-8 rounded-2xl border border-gray-900"
+                >
+                    <div
+                        class="text-[#8A2BE2] font-title text-sm uppercase tracking-wider font-bold"
+                    >
+                        Web Hosting
+                    </div>
+                    <p class="text-sm leading-relaxed text-gray-400">
+                        Host any static assets directly from your Minecraft
+                        plugin directory.
+                    </p>
+                </div>
+                <div
+                    class="space-y-4 hover-card bg-[#0d0d0d] p-8 rounded-2xl border border-gray-900"
+                >
+                    <div
+                        class="text-[#8A2BE2] font-title text-sm uppercase tracking-wider font-bold"
+                    >
+                        Sync Chat
+                    </div>
+                    <p class="text-sm leading-relaxed text-gray-400">
+                        High-fidelity, bidirectional communication between web
+                        and game.
+                    </p>
+                </div>
+                <div
+                    class="space-y-4 hover-card bg-[#0d0d0d] p-8 rounded-2xl border border-gray-900"
+                >
+                    <div
+                        class="text-[#8A2BE2] font-title text-sm uppercase tracking-wider font-bold"
+                    >
+                        Hot-Reload
+                    </div>
+                    <p class="text-sm leading-relaxed text-gray-400">
+                        Instant cache invalidation. Edit your site and see
+                        changes immediately.
+                    </p>
+                </div>
+                <div
+                    class="space-y-4 hover-card bg-[#0d0d0d] p-8 rounded-2xl border border-gray-900"
+                >
+                    <div
+                        class="text-[#8A2BE2] font-title text-sm uppercase tracking-wider font-bold"
+                    >
+                        Secure
+                    </div>
+                    <p class="text-sm leading-relaxed text-gray-400">
+                        Path-traversal protection and integrated rate-limiting
+                        for stability.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <footer
+            class="px-10 md:px-24 py-16 section-border flex flex-col md:flex-row justify-between items-center gap-8 bg-[#050505]"
+        >
+            <div
+                class="text-[12px] tracking-[0.4em] uppercase font-bold text-white flex items-center gap-2"
+            >
+                PORTEL
+                <div
+                    class="w-2 h-2 bg-[#8A2BE2] rounded-full animate-pulse"
+                ></div>
+            </div>
+            <div
+                class="flex gap-12 text-[10px] tracking-[0.2em] uppercase font-semibold text-gray-400"
+            >
+                <a
+                    href="https://github.com/Skullmc1/Portel"
+                    class="hover:text-[#8A2BE2] hover:scale-110 transition-all"
+                    >GitHub</a
+                >
+                <a
+                    href="https://github.com/Skullmc1/Portel"
+                    class="hover:text-[#8A2BE2] hover:scale-110 transition-all"
+                    >Docs</a
+                >
+            </div>
+        </footer>
+
         <script src="script.js"></script>
     </body>
 </html>
