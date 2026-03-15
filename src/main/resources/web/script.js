@@ -22,7 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const data = JSON.parse(event.data);
                 // data: { sender: "Name", message: "msg" }
-                appendMessage(`[${data.sender}] ${data.message}`);
+                const currentUser = usernameInput.value.trim() || "WebUser";
+                const isSelf = data.sender === currentUser;
+                appendMessage(`[${data.sender}] ${data.message}`, isSelf ? 'text-acc' : 'text-t1');
             } catch (e) {
                 // If not JSON, just display it
                 appendMessage(event.data);
@@ -55,8 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (msg && ws && ws.readyState === WebSocket.OPEN) {
             ws.send(`${user}: ${msg}`);
             chatInput.value = '';
-            // Optimistically append own message
-            appendMessage(`[${user}] ${msg}`, 'text-acc');
+            // No optimistic append, wait for server broadcast for sync
         }
     }
 

@@ -11,6 +11,7 @@ public final class Portel extends JavaPlugin {
 
     private WebServerManager webServerManager;
     private WebSocketManager wsManager;
+    private FileWatcher fileWatcher;
     private ConsoleLogger consoleLogger;
     private BukkitAudiences adventure;
 
@@ -45,6 +46,16 @@ public final class Portel extends JavaPlugin {
 
         try {
             webServerManager.start();
+            
+            // Start FileWatcher for hot-reloading if enabled
+            if (getConfig().getBoolean("hot-reloading", true)) {
+                java.nio.file.Path webPath = getDataFolder().toPath().resolve("web");
+                if (java.nio.file.Files.exists(webPath)) {
+                    fileWatcher = new FileWatcher(this, webServerManager, webPath);
+                    getServer().getScheduler().runTaskAsynchronously(this, fileWatcher);
+                    consoleLogger.info("Hot-reloading enabled for web directory.");
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -73,6 +84,9 @@ public final class Portel extends JavaPlugin {
             this.adventure.close();
             this.adventure = null;
         }
+        if (fileWatcher != null) {
+            fileWatcher.stop();
+        }
         webServerManager.stop();
         if (wsManager != null) {
             try {
@@ -87,6 +101,24 @@ public final class Portel extends JavaPlugin {
         reloadConfig();
         consoleLogger.info("Configuration reloaded.");
         webServerManager.restart();
+
+        if (fileWatcher != null) {
+            fileWatcher.stop();
+            fileWatcher = null;
+        }
+
+        if (getConfig().getBoolean("hot-reloading", true)) {
+            java.nio.file.Path webPath = getDataFolder().toPath().resolve("web");
+            if (java.nio.file.Files.exists(webPath)) {
+                try {
+                    fileWatcher = new FileWatcher(this, webServerManager, webPath);
+                    getServer().getScheduler().runTaskAsynchronously(this, fileWatcher);
+                    consoleLogger.info("Hot-reloading re-enabled.");
+                } catch (IOException e) {
+                    consoleLogger.warning("Failed to restart FileWatcher: " + e.getMessage());
+                }
+            }
+        }
         
         if (wsManager != null) {
              try {

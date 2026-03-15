@@ -45,6 +45,9 @@ public class PortelCommand implements CommandExecutor {
             case "blacklist":
                 handleBlacklist(sender, args);
                 break;
+            case "version":
+                handleVersion(sender);
+                break;
             default:
                 chatStyler.sendMessage(
                     sender,
@@ -54,6 +57,13 @@ public class PortelCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    private void handleVersion(CommandSender sender) {
+        chatStyler.sendMessage(
+            sender,
+            "Running Portel v" + plugin.getDescription().getVersion()
+        );
     }
 
     private void handleRestart(CommandSender sender) {

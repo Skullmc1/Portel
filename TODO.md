@@ -14,7 +14,7 @@ This file outlines the future development goals for Portel.
 - [ ] **Web-Based Admin Panel:** Create a default, secured internal dashboard for admins to view logs, manage whitelists, and monitor server performance via the browser.
 - [ ] **Directory Listing:** Add a configurable option to enable directory indexing, allowing users to browse file hierarchies.
 - [x] **Dynamic Management Commands:** Add commands to modify the whitelist/blacklist at runtime (e.g., `/portel whitelist add <ip>`).
-- [ ] **Hot-Reloading:** Watch the web directory for file changes and clear the internal cache automatically, so you don't need to restart the plugin/server when editing HTML/CSS files.
+- [x] **Hot-Reloading:** Watch the web directory for file changes and clear the internal cache automatically, so you don't need to restart the plugin/server when editing HTML/CSS files.
 ## 📝 Polish & Maintenance (Low Priority)
 
 - [x] **Smart MIME Types:** Enhance the `WebServerManager` to automatically detect and serve correct Content-Types for a broader range of file extensions (.webp, .svg, .json, etc.).

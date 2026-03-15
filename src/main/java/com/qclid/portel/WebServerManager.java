@@ -97,6 +97,12 @@ public class WebServerManager {
         }
     }
 
+    public void clearCache(String fileName) {
+        if (fileCache.remove(fileName) != null) {
+            logger.info("Cache cleared for: " + fileName);
+        }
+    }
+
     public void restart() {
         stop();
         try {

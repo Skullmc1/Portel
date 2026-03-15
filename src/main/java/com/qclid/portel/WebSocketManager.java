@@ -53,6 +53,19 @@ public class WebSocketManager extends WebSocketServer {
             return;
         }
 
+        // Parse "User: Message" format
+        String sender = "WebUser";
+        String contentText = message;
+        if (message.contains(": ")) {
+            String[] parts = message.split(": ", 2);
+            sender = parts[0];
+            contentText = parts[1];
+        }
+
+        // 1. Broadcast to all web clients (including the sender)
+        broadcastToWeb(sender, contentText);
+
+        // 2. Deliver to in-game players
         String prefixText = plugin.getConfig().getString("websocket.chat-prefix", "[Portel] * ");
         String prefixColorName = plugin.getConfig().getString("websocket.prefix-color", "DARK_PURPLE");
         String messageColorName = plugin.getConfig().getString("websocket.message-color", "LIGHT_PURPLE");
@@ -64,11 +77,12 @@ public class WebSocketManager extends WebSocketServer {
         if (messageColor == null) messageColor = NamedTextColor.LIGHT_PURPLE;
 
         Component prefix = Component.text(prefixText, prefixColor);
-        Component content = Component.text(message, messageColor);
+        Component userComp = Component.text(sender + ": ", prefixColor);
+        Component content = Component.text(contentText, messageColor);
 
-        Component finalMessage = prefix.append(content);
+        Component finalMessage = prefix.append(userComp).append(content);
 
-        // Run on main thread to be safe with Bukkit API if needed, though adventure is async-safe usually.
+        // Run on main thread to be safe with Bukkit API
         Bukkit.getScheduler().runTask(plugin, () -> {
             plugin.adventure().all().sendMessage(finalMessage);
         });

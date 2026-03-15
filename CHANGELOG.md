@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-03-15
+
+### Added
+-   **Hot-Reloading**: Added a `FileWatcher` service that automatically clears the internal web cache when files in the `web/` directory are modified, created, or deleted. No more manual restarts needed after editing assets!
+-   Added `hot-reloading` toggle in `config.yml`.
+
+### Changed
+-   Refactored `onDisable` and `reload` logic to properly manage asynchronous services.
+
 ## [1.5.0] - 2026-03-15
 
 ### Added

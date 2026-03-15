@@ -8,6 +8,8 @@
 port: 8080
 websocket-port: 8081
 index-file: index.html
+# Automatically clear cache when files in web/ directory are modified.
+hot-reloading: true
 
 ssl:
   enabled: false
@@ -16,7 +18,7 @@ ssl:
 
 websocket:
   # Enable web users to send messages to the Minecraft server
-  allow-web-to-game-chat: false
+  allow-web-to-game-chat: true
   # Formatting for web-to-game messages
   chat-prefix: "[Portel] * "
   prefix-color: "DARK_PURPLE"
