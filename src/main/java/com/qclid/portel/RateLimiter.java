@@ -18,6 +18,13 @@ public class RateLimiter {
         this.plugin = plugin;
     }
 
+    public void cleanup() {
+        long now = System.currentTimeMillis();
+        int delay = plugin.getConfig().getInt("rate-limiting.delay", 1000);
+        // Remove entries older than 1 minute to prevent memory leaks
+        lastRequest.entrySet().removeIf(entry -> now - entry.getValue() > 60000);
+    }
+
     public boolean isRateLimited(HttpExchange t, String requestedFile)
         throws IOException {
         if (plugin.getConfig().getBoolean("rate-limiting.enabled")) {

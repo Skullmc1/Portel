@@ -18,11 +18,12 @@ public class IPLogger {
         this.logger = logger;
     }
 
-    public void log(String ip) {
+    public synchronized void log(String ip) {
         if (plugin.getConfig().getBoolean("logging.ip")) {
+            String fileName = plugin.getConfig().getString("logging.ip-log-file", "ips.log");
             try (
                 FileWriter fw = new FileWriter(
-                    new File(plugin.getDataFolder(), "ips.yml"),
+                    new File(plugin.getDataFolder(), fileName),
                     true
                 );
                 PrintWriter pw = new PrintWriter(fw)

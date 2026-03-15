@@ -40,6 +40,9 @@ public final class Portel extends JavaPlugin {
             placeholderHook
         );
 
+        // Cleanup rate limiter every minute to prevent memory leak
+        getServer().getScheduler().runTaskTimerAsynchronously(this, rateLimiter::cleanup, 1200L, 1200L);
+
         try {
             webServerManager.start();
         } catch (IOException e) {

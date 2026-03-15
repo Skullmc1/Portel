@@ -38,7 +38,25 @@ public class PlaceholderHook {
     private static class PapiParserImpl implements PapiParser {
         @Override
         public String parse(String text) {
-            return PlaceholderAPI.setPlaceholders(null, text);
+            String parsed = PlaceholderAPI.setPlaceholders(null, text);
+            // We need to escape HTML to prevent XSS if placeholders contain user input
+            return escapeHtml(parsed);
+        }
+
+        private String escapeHtml(String s) {
+            if (s == null) return null;
+            StringBuilder out = new StringBuilder(Math.max(16, s.length()));
+            for (int i = 0; i < s.length(); i++) {
+                char c = s.charAt(i);
+                if (c > 127 || c == '"' || c == '<' || c == '>' || c == '&') {
+                    out.append("&#");
+                    out.append((int) c);
+                    out.append(';');
+                } else {
+                    out.append(c);
+                }
+            }
+            return out.toString();
         }
     }
 }

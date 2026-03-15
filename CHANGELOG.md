@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-03-15
+
+### Added
+-   Shared `SSLUtils` to unify SSL configuration between Web and WebSocket servers.
+-   Configurable chat prefix and colors for web-to-game messages.
+-   In-memory static file caching for faster asset delivery.
+-   Asynchronous cleanup task for the RateLimiter to prevent memory growth.
+-   Thread pool (10 threads) for the web server to handle concurrent requests better.
+
+### Fixed
+-   **Security**: Blocked unauthenticated web-to-game chat injection via a new toggle.
+-   **Security**: Implemented strict path validation to prevent Path Traversal attacks.
+-   **Security**: Added HTML escaping to PlaceholderAPI output to prevent XSS.
+-   Fixed a bug where default assets were overwritten on every startup.
+-   Synchronized IP logging to prevent thread-safety issues and file corruption.
+-   Renamed `ips.yml` to `ips.log` and made the log file name configurable.
+
 ## [1.4.2] - 2025-11-17
 
 ### Fixed
