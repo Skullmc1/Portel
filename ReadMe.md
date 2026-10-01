@@ -5,6 +5,8 @@
 
 ## Websites hosted directly on Minecraft servers
 
+**Built for Minecraft:** <!-- mc-version -->26.3<!-- /mc-version --> (Paper, Java 25+)
+
 Portel is a Minecraft plugin that allows you to host a simple website directly from your server. It starts a lightweight web server that serves files from a folder within the plugin's configuration directory.
 
 ## Why use Portel?

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.qclid'
-version = '1.6.1'
+version = '1.6.2'
 
 repositories {
     mavenCentral()
@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.3.build.+")
     compileOnly("me.clip:placeholderapi:2.11.6")
     implementation("net.kyori:adventure-api:4.17.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.3")
@@ -28,11 +28,11 @@ dependencies {
 
 tasks {
     runServer {
-        minecraftVersion("1.21")
+        minecraftVersion("26.3")
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion

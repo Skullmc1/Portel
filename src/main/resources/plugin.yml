@@ -1,7 +1,7 @@
 name: Portel
-version: "1.6.1"
+version: "1.6.2"
 main: com.qclid.portel.Portel
-api-version: "1.21"
+api-version: "26.3"
 prefix: Portel
 authors: [Qclid]
 description: Website through minecraft server
