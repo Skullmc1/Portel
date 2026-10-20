@@ -178,9 +178,11 @@
                     class="text-[10px] tracking-[0.3em] uppercase text-[#8A2BE2] block mb-2 font-bold"
                     >Metrics</span
                 >
-                <p class="text-xs text-gray-500 italic">
-                    Note: PlaceholderAPI is required to display live server
-                    data.
+                <p class="text-xs text-gray-500">
+                    Live server data.
+                    <a href="dashboard.html" class="text-[#8A2BE2] underline"
+                        >Open the full dashboard</a
+                    >
                 </p>
             </div>
             <div
@@ -196,9 +198,9 @@
                     <div
                         class="font-tech text-4xl text-white placeholder-slot font-semibold"
                     >
-                        %server_online%
+                        <span id="m-online">–</span>
                         <span class="text-[#8A2BE2] text-2xl">/</span>
-                        %server_max_players%
+                        <span id="m-max">–</span>
                     </div>
                 </div>
                 <div
@@ -211,7 +213,7 @@
                     <div
                         class="font-tech text-4xl text-white placeholder-slot font-semibold"
                     >
-                        %server_tps%
+                        <span id="m-tps">–</span>
                         <span class="text-[#8A2BE2] text-lg">TPS</span>
                     </div>
                 </div>
@@ -225,7 +227,7 @@
                     <div
                         class="font-tech text-4xl text-white placeholder-slot font-semibold"
                     >
-                        %server_ram_used%
+                        <span id="m-ram">–</span>
                         <span class="text-[#8A2BE2] text-lg">MB</span>
                     </div>
                 </div>
@@ -384,5 +386,23 @@
         </footer>
 
         <script src="script.js"></script>
+            <script>
+            // Live metrics from the Portel API (no PlaceholderAPI needed)
+            (function () {
+                async function refresh() {
+                    try {
+                        const r = await fetch("/api/status", { cache: "no-store" });
+                        if (!r.ok) return;
+                        const s = await r.json();
+                        document.getElementById("m-online").textContent = s.online;
+                        document.getElementById("m-max").textContent = s.max;
+                        document.getElementById("m-tps").textContent = s.tps.toFixed(1);
+                        document.getElementById("m-ram").textContent = s.memoryUsedMb;
+                    } catch (e) {}
+                }
+                refresh();
+                setInterval(refresh, 5000);
+            })();
+        </script>
     </body>
 </html>
