@@ -4,7 +4,9 @@ import java.io.IOException;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerLoadEvent;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Portel extends JavaPlugin {
@@ -14,6 +16,8 @@ public final class Portel extends JavaPlugin {
     private FileWatcher fileWatcher;
     private ConsoleLogger consoleLogger;
     private BukkitAudiences adventure;
+    private ApiRegistry apiRegistry;
+    private DashboardService dashboard;
 
     @Override
     public void onEnable() {
@@ -32,13 +36,22 @@ public final class Portel extends JavaPlugin {
             consoleLogger.warning("PlaceholderAPI not found. Placeholders will not be parsed.");
         }
 
+        apiRegistry = new ApiRegistry(consoleLogger);
+        getServer().getServicesManager().register(
+            com.qclid.portel.api.PortelAPI.class,
+            apiRegistry,
+            this,
+            ServicePriority.Normal
+        );
+
         webServerManager = new WebServerManager(
             this,
             consoleLogger,
             ipLogger,
             rateLimiter,
             errorPageHandler,
-            placeholderHook
+            placeholderHook,
+            apiRegistry
         );
 
         // Cleanup rate limiter every minute to prevent memory leak
@@ -64,6 +77,22 @@ public final class Portel extends JavaPlugin {
         wsManager = new WebSocketManager(this, wsPort);
         wsManager.start();
         
+        if (getConfig().getBoolean("dashboard.enabled", true)) {
+            dashboard = new DashboardService(this, apiRegistry);
+            dashboard.start();
+            consoleLogger.info("Live dashboard enabled at /dashboard.html");
+        }
+
+        // Remove API routes of plugins that get disabled
+        getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onPluginDisable(PluginDisableEvent event) {
+                if (event.getPlugin() != Portel.this) {
+                    apiRegistry.unregisterAll(event.getPlugin());
+                }
+            }
+        }, this);
+
         getServer().getPluginManager().registerEvents(new ChatListener(wsManager), this);
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler
@@ -87,6 +116,10 @@ public final class Portel extends JavaPlugin {
         if (fileWatcher != null) {
             fileWatcher.stop();
         }
+        if (dashboard != null) {
+            dashboard.stop();
+        }
+        getServer().getServicesManager().unregisterAll(this);
         webServerManager.stop();
         if (wsManager != null) {
             try {

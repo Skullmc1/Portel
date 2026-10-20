@@ -1,5 +1,5 @@
 name: Portel
-version: "1.6.2"
+version: "1.7.0"
 main: com.qclid.portel.Portel
 api-version: "26.3"
 prefix: Portel

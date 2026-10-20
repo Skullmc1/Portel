@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-10-20
+
+### Added
+-   **Plugin API**: Other plugins can register HTTP routes (`PortelAPI`, via the Bukkit services manager) with exact or prefix paths, any HTTP method, JSON helpers and automatic cleanup when the owning plugin disables. See `guides/api.md`.
+-   **Live dashboard**: New `/dashboard.html` with player list and skin heads, TPS/MSPT, memory, uptime, a 15-minute history chart, an activity feed and an optional live player map. Built on the new API (`/api/status`, `/api/players`, `/api/events`, `/api/history`). See `guides/dashboard.md`.
+-   New `dashboard` config section. The map (player coordinates) is off by default.
+
+### Fixed
+-   Fresh installs no longer fail to enable because `ips.log` / `assets/logo.png` were not bundled in the jar.
+
 ## [1.6.2] - 2026-10-01
 
 ### Changed

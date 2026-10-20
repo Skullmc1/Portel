@@ -33,3 +33,16 @@ logging:
   ip-log-file: "ips.log"
   # Buffer IP logs and write them periodically (NOT IMPLEMENTED - simplified for now with sync writer)
   buffered: false
+
+dashboard:
+  # Live server dashboard at /dashboard.html (served by the Portel API at /api/status, /api/players, /api/events, /api/history)
+  enabled: true
+  server-name: "Minecraft Server"
+  # Show the live player map. Exposes player coordinates to ANYONE who can reach the site - leave off on survival servers.
+  show-locations: false
+  # Include in-game chat in the event feed
+  show-chat: true
+  # Number of recent events kept in the feed
+  events-max: 50
+  # Player head image. {uuid} is replaced with the player's UUID. This loads from a third-party site in the visitor's browser.
+  skin-url: "https://mc-heads.net/avatar/{uuid}/48"

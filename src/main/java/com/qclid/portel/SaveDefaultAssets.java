@@ -14,15 +14,15 @@ public class SaveDefaultAssets {
         plugin.saveDefaultConfig();
         
         String[] resources = {
-            "web/index.html", "web/script.js", "web/assets/favicon.ico",
-            "web/assets/logo.png", "web/fonts/Unbounded.ttf", "web/fonts/Minecraft.otf",
-            "ips.log", "web/error-pages/403.html", "web/error-pages/404.html",
+            "web/index.html", "web/dashboard.html", "web/script.js", "web/assets/favicon.ico",
+            "web/fonts/Unbounded.ttf", "web/fonts/Minecraft.otf",
+            "web/error-pages/403.html", "web/error-pages/404.html",
             "web/error-pages/429.html"
         };
 
         for (String resource : resources) {
             java.io.File file = new java.io.File(plugin.getDataFolder(), resource);
-            if (!file.exists()) {
+            if (!file.exists() && plugin.getResource(resource) != null) {
                 plugin.saveResource(resource, false);
             }
         }

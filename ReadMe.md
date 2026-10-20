@@ -15,6 +15,8 @@ Portel is a Minecraft plugin that allows you to host a simple website directly f
 -   **Lightweight:** Built on Java's built-in HTTP server, so there is no heavy web stack to run.
 -   **Fully customizable:** Serve your own HTML, CSS, JavaScript and assets, with custom error pages for 403, 404 and 429.
 -   **Hot-reloading:** Edits to files in `web/` are picked up automatically, with no restart needed.
+-   **Live dashboard:** A built-in `/dashboard.html` shows players, TPS, memory, an activity feed and an optional live player map. See the [dashboard guide](guides/dashboard.md).
+-   **Plugin API:** Other plugins can register their own HTTP endpoints through Portel. See the [API guide](guides/api.md).
 -   **Live chat over WebSocket:** Show in-game chat on your site and let web visitors send messages into the game. See the [WebSocket guide](guides/websocket.md).
 -   **PlaceholderAPI support:** Use placeholders such as `%server_online%` directly in your HTML. See the [placeholders guide](guides/placeholders.md).
 -   **HTTPS/SSL:** Serve your site over `https://` using a keystore. See the [SSL guide](guides/ssl.md).
@@ -52,6 +54,15 @@ logging:
   ip: true
   # File name for IP logging
   ip-log-file: "ips.log"
+
+dashboard:
+  enabled: true
+  server-name: "Minecraft Server"
+  # Shows player coordinates publicly - keep off on survival servers
+  show-locations: false
+  show-chat: true
+  events-max: 50
+  skin-url: "https://mc-heads.net/avatar/{uuid}/48"
 ```
 
 Make sure `port` and `websocket-port` are open on your host and differ from the Minecraft port (default 25565).
@@ -73,6 +84,8 @@ Alias: `/p`
 
 ## Guides
 
+-   [Live Dashboard](guides/dashboard.md) - Configure the built-in server dashboard and map.
+-   [Plugin API](guides/api.md) - Register custom web endpoints from your own plugin.
 -   [WebSocket Support](guides/websocket.md) - Learn how to use the real-time chat feature.
 -   [PlaceholderAPI Support](guides/placeholders.md) - Integrate dynamic server information into your web pages.
 -   [HTTPS/SSL Support](guides/ssl.md) - Secure your web server with SSL certificates.

@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Server Dashboard</title>
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;800&family=Inter:wght@300;400;600&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            @font-face {
+                font-family: "Minecraft";
+                src: url("fonts/Minecraft.otf") format("opentype");
+            }
+            :root {
+                --accent: #8a2be2;
+                --bg: #080808;
+                --panel: #0f0f10;
+                --line: rgba(138, 43, 226, 0.18);
+                --text: #d4d4d4;
+                --muted: #737373;
+                --good: #4ade80;
+                --warn: #facc15;
+                --bad: #ef4444;
+            }
+            * { box-sizing: border-box; }
+            body {
+                margin: 0;
+                font-family: "Inter", sans-serif;
+                background: var(--bg);
+                color: var(--text);
+            }
+            header {
+                display: flex;
+                align-items: baseline;
+                gap: 16px;
+                flex-wrap: wrap;
+                padding: 28px 32px 8px;
+            }
+            h1 {
+                font-family: "Unbounded", sans-serif;
+                font-weight: 800;
+                font-size: 1.6rem;
+                margin: 0;
+                letter-spacing: -0.02em;
+            }
+            .motd { color: var(--muted); font-size: 0.9rem; }
+            .live {
+                margin-left: auto;
+                font-size: 0.75rem;
+                color: var(--muted);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bad); }
+            .dot.on { background: var(--good); box-shadow: 0 0 10px var(--good); }
+            main {
+                display: grid;
+                grid-template-columns: repeat(12, 1fr);
+                gap: 16px;
+                padding: 16px 32px 40px;
+            }
+            .panel {
+                background: var(--panel);
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                padding: 18px 20px;
+                min-width: 0;
+            }
+            .panel h2 {
+                margin: 0 0 14px;
+                font-size: 0.7rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.14em;
+                color: var(--muted);
+            }
+            .stat { grid-column: span 3; }
+            .stat .value {
+                font-family: "Unbounded", sans-serif;
+                font-size: 2rem;
+                font-weight: 500;
+            }
+            .stat .sub { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+            .wide { grid-column: span 8; }
+            .side { grid-column: span 4; }
+            .half { grid-column: span 6; }
+            .full { grid-column: span 12; }
+            @media (max-width: 1000px) {
+                .stat { grid-column: span 6; }
+                .wide, .side, .half { grid-column: span 12; }
+                header, main { padding-left: 16px; padding-right: 16px; }
+            }
+            canvas { width: 100%; display: block; }
+            #map { height: 420px; background: #0a0a0b; border-radius: 10px; cursor: grab; touch-action: none; }
+            #map.dragging { cursor: grabbing; }
+            .tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+            .tab {
+                background: transparent;
+                color: var(--muted);
+                border: 1px solid var(--line);
+                border-radius: 999px;
+                padding: 4px 12px;
+                font: inherit;
+                font-size: 0.75rem;
+                cursor: pointer;
+            }
+            .tab.active { color: #fff; border-color: var(--accent); background: rgba(138, 43, 226, 0.2); }
+            .hint { font-size: 0.72rem; color: var(--muted); margin-top: 8px; }
+            ul { list-style: none; margin: 0; padding: 0; }
+            .player {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 8px 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+                cursor: default;
+            }
+            .player.clickable { cursor: pointer; }
+            .player:last-child { border-bottom: none; }
+            .player img { width: 32px; height: 32px; border-radius: 6px; image-rendering: pixelated; background: #1a1a1a; }
+            .player .name { font-family: "Minecraft", monospace; font-size: 1rem; color: #fff; }
+            .player .meta { font-size: 0.72rem; color: var(--muted); }
+            .player .ping { margin-left: auto; font-size: 0.75rem; color: var(--muted); }
+            .empty { color: var(--muted); font-size: 0.85rem; padding: 8px 0; }
+            #feed { max-height: 360px; overflow-y: auto; }
+            #feed li { display: flex; gap: 10px; padding: 6px 0; font-size: 0.85rem; }
+            #feed .time { color: var(--muted); font-size: 0.72rem; flex: none; width: 52px; padding-top: 2px; }
+            #feed .badge { flex: none; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; }
+            .t-join .badge { background: var(--good); }
+            .t-quit .badge { background: var(--muted); }
+            .t-death .badge { background: var(--bad); }
+            .t-advancement .badge { background: var(--warn); }
+            .t-chat .badge { background: var(--accent); }
+            .t-chat .who { color: #c4a1ff; }
+            .bar { height: 6px; background: #1a1a1a; border-radius: 99px; overflow: hidden; margin-top: 10px; }
+            .bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width 0.4s; }
+            .chart { height: 140px; }
+            .legend { font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
+            a { color: var(--accent); text-decoration: none; }
+            footer { text-align: center; color: var(--muted); font-size: 0.72rem; padding: 0 0 28px; }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1 id="name">Server</h1>
+            <span class="motd" id="motd"></span>
+            <span class="live"><span class="dot" id="dot"></span><span id="liveText">connecting…</span></span>
+        </header>
+
+        <main>
+            <section class="panel stat">
+                <h2>Players</h2>
+                <div class="value" id="players-value">–</div>
+                <div class="sub" id="version">&nbsp;</div>
+            </section>
+            <section class="panel stat">
+                <h2>TPS</h2>
+                <div class="value" id="tps-value">–</div>
+                <div class="sub" id="mspt">&nbsp;</div>
+            </section>
+            <section class="panel stat">
+                <h2>Memory</h2>
+                <div class="value" id="mem-value">–</div>
+                <div class="bar"><i id="mem-bar"></i></div>
+            </section>
+            <section class="panel stat">
+                <h2>Uptime</h2>
+                <div class="value" id="uptime-value">–</div>
+                <div class="sub">since last restart</div>
+            </section>
+
+            <section class="panel wide" id="map-panel" hidden>
+                <h2>Live map</h2>
+                <div class="tabs" id="world-tabs"></div>
+                <canvas id="map"></canvas>
+                <div class="hint">Drag to pan · scroll to zoom · click a player to follow</div>
+            </section>
+
+            <section class="panel side" id="players-panel">
+                <h2>Online now</h2>
+                <ul id="player-list"></ul>
+            </section>
+
+            <section class="panel half">
+                <h2>TPS &amp; players · last 15 min</h2>
+                <canvas id="chart-tps" class="chart"></canvas>
+                <div class="legend"><span style="color: #8a2be2">■</span> TPS &nbsp; <span style="color: #4ade80">■</span> players</div>
+            </section>
+
+            <section class="panel half">
+                <h2>Recent activity</h2>
+                <ul id="feed"></ul>
+            </section>
+        </main>
+        <footer>Powered by <a href="https://github.com/Skullmc1/Portel">Portel</a></footer>
+
+        <script>
+            (function () {
+                "use strict";
+                const $ = (id) => document.getElementById(id);
+                const POLL_MS = 2000;
+                let status = null;
+                let players = [];
+                let lastEventId = 0;
+                let currentWorld = null;
+                let followed = null;
+                const heads = new Map();
+
+                // ---------- helpers ----------
+                function headUrl(uuid) {
+                    return (status && status.skinUrl ? status.skinUrl : "https://mc-heads.net/avatar/{uuid}/48").replace("{uuid}", uuid);
+                }
+                function headImage(uuid) {
+                    let img = heads.get(uuid);
+                    if (!img) {
+                        img = new Image();
+                        img.referrerPolicy = "no-referrer";
+                        img.src = headUrl(uuid);
+                        heads.set(uuid, img);
+                    }
+                    return img;
+                }
+                function fmtUptime(s) {
+                    const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
+                    if (d) return d + "d " + h + "h";
+                    if (h) return h + "h " + m + "m";
+                    return m + "m";
+                }
+                function fmtTime(ms) {
+                    return new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                }
+                function el(tag, cls, text) {
+                    const e = document.createElement(tag);
+                    if (cls) e.className = cls;
+                    if (text !== undefined) e.textContent = text;
+                    return e;
+                }
+                async function getJson(url) {
+                    const r = await fetch(url, { cache: "no-store" });
+                    if (!r.ok) throw new Error(url + " " + r.status);
+                    return r.json();
+                }
+
+                // ---------- rendering ----------
+                function renderStatus() {
+                    $("name").textContent = status.name;
+                    document.title = status.name + " · Dashboard";
+                    $("motd").textContent = status.motd;
+                    $("players-value").textContent = status.online + " / " + status.max;
+                    $("version").textContent = status.software + " " + status.minecraftVersion;
+                    const tps = $("tps-value");
+                    tps.textContent = status.tps.toFixed(1);
+                    tps.style.color = status.tps >= 19 ? "var(--good)" : status.tps >= 15 ? "var(--warn)" : "var(--bad)";
+                    $("mspt").textContent = status.mspt.toFixed(1) + " ms per tick";
+                    $("mem-value").textContent = status.memoryUsedMb + " MB";
+                    $("mem-bar").style.width = Math.min(100, (status.memoryUsedMb / status.memoryMaxMb) * 100) + "%";
+                    $("uptime-value").textContent = fmtUptime(status.uptimeSeconds);
+                    $("map-panel").hidden = !status.showLocations;
+                    $("players-panel").classList.toggle("side", status.showLocations);
+                    $("players-panel").classList.toggle("full", !status.showLocations);
+
+                    if (status.showLocations) {
+                        const names = status.worlds.map((w) => w.name);
+                        if (!names.includes(currentWorld)) currentWorld = names[0] || null;
+                        const tabs = $("world-tabs");
+                        if (tabs.dataset.worlds !== names.join("|")) {
+                            tabs.dataset.worlds = names.join("|");
+                            tabs.replaceChildren();
+                            names.forEach((n) => {
+                                const b = el("button", "tab", n);
+                                b.dataset.world = n;
+                                b.onclick = () => { currentWorld = n; view = null; renderTabs(); };
+                                tabs.appendChild(b);
+                            });
+                        }
+                        renderTabs();
+                    }
+                }
+                function renderTabs() {
+                    document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("active", b.dataset.world === currentWorld));
+                }
+                function renderPlayers() {
+                    const ul = $("player-list");
+                    ul.replaceChildren();
+                    if (!players.length) {
+                        ul.appendChild(el("li", "empty", "Nobody is online right now."));
+                        return;
+                    }
+                    players.forEach((p) => {
+                        const li = el("li", "player" + (status && status.showLocations ? " clickable" : ""));
+                        const img = el("img");
+                        img.src = headUrl(p.uuid);
+                        img.alt = "";
+                        img.referrerPolicy = "no-referrer";
+                        const info = el("div");
+                        info.appendChild(el("div", "name", p.name));
+                        let meta = p.gamemode + " · ♥ " + p.health;
+                        if (p.x !== undefined) meta += " · " + p.world + " " + p.x + ", " + p.y + ", " + p.z;
+                        info.appendChild(el("div", "meta", meta));
+                        li.append(img, info, el("div", "ping", p.ping + " ms"));
+                        if (p.x !== undefined) {
+                            li.onclick = () => { followed = p.name; currentWorld = p.world; view = null; renderTabs(); };
+                        }
+                        ul.appendChild(li);
+                    });
+                }
+                function addEvents(list) {
+                    const feed = $("feed");
+                    list.forEach((e) => {
+                        if (e.id > lastEventId) lastEventId = e.id;
+                        if (e.type === "chat" && status && !status.showChat) return;
+                        const li = el("li", "t-" + e.type);
+                        li.append(el("span", "time", fmtTime(e.t)), el("span", "badge"));
+                        const text = el("span");
+                        if (e.type === "chat") {
+                            text.append(el("span", "who", e.player + ": "), document.createTextNode(e.text));
+                        } else {
+                            text.textContent = e.text;
+                        }
+                        li.appendChild(text);
+                        feed.prepend(li);
+                    });
+                    while (feed.children.length > 60) feed.lastChild.remove();
+                    if (!feed.children.length) feed.appendChild(el("li", "empty", "No activity yet."));
+                    else feed.querySelectorAll(".empty").forEach((n) => n.remove());
+                }
+
+                // ---------- charts ----------
+                function sizeCanvas(c) {
+                    const dpr = window.devicePixelRatio || 1;
+                    const w = c.clientWidth, h = c.clientHeight;
+                    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) {
+                        c.width = Math.round(w * dpr);
+                        c.height = Math.round(h * dpr);
+                    }
+                    const ctx = c.getContext("2d");
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    return { ctx, w, h };
+                }
+                function line(ctx, pts, color) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])));
+                    ctx.stroke();
+                }
+                function drawChart(hist) {
+                    const { ctx, w, h } = sizeCanvas($("chart-tps"));
+                    ctx.clearRect(0, 0, w, h);
+                    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i <= 4; i++) {
+                        const y = 6 + ((h - 12) * i) / 4;
+                        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+                    }
+                    if (hist.length < 2) return;
+                    const t0 = hist[0].t, t1 = hist[hist.length - 1].t || t0 + 1;
+                    const x = (t) => ((t - t0) / (t1 - t0)) * (w - 2) + 1;
+                    const maxP = Math.max(5, ...hist.map((s) => s.players));
+                    line(ctx, hist.map((s) => [x(s.t), 6 + (h - 12) * (1 - Math.min(s.tps, 20) / 20)]), "#8a2be2");
+                    line(ctx, hist.map((s) => [x(s.t), 6 + (h - 12) * (1 - s.players / maxP)]), "#4ade80");
+                }
+
+                // ---------- map ----------
+                const mapCanvas = $("map");
+                let view = null; // {cx, cz, scale} scale = pixels per block
+                let dragging = null;
+
+                function worldInfo() {
+                    return status && status.worlds.find((w) => w.name === currentWorld);
+                }
+                function initView(w, width, height) {
+                    const wp = players.filter((p) => p.world === currentWorld);
+                    let cx = w.spawnX, cz = w.spawnZ, span = 300;
+                    if (wp.length) {
+                        const xs = wp.map((p) => p.x), zs = wp.map((p) => p.z);
+                        cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+                        cz = (Math.min(...zs) + Math.max(...zs)) / 2;
+                        span = Math.max(150, Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs)) * 1.6;
+                    }
+                    view = { cx, cz, scale: Math.min(width, height) / span };
+                }
+                function drawMap() {
+                    if (!status || !status.showLocations) return;
+                    const w = worldInfo();
+                    if (!w) return;
+                    const { ctx, w: width, h: height } = sizeCanvas(mapCanvas);
+                    if (!view) initView(w, width, height);
+
+                    const wp = players.filter((p) => p.world === currentWorld);
+                    if (followed) {
+                        const f = wp.find((p) => p.name === followed);
+                        if (f && !dragging) { view.cx = f.x; view.cz = f.z; }
+                    }
+                    const sx = (x) => (x - view.cx) * view.scale + width / 2;
+                    const sz = (z) => (z - view.cz) * view.scale + height / 2;
+
+                    ctx.fillStyle = "#0a0a0b";
+                    ctx.fillRect(0, 0, width, height);
+
+                    // grid
+                    const targetPx = 70;
+                    const rawStep = targetPx / view.scale;
+                    const pow = Math.pow(10, Math.floor(Math.log10(rawStep)));
+                    const step = [1, 2, 5, 10].map((m) => m * pow).find((s) => s >= rawStep) || pow * 10;
+                    ctx.lineWidth = 1;
+                    ctx.font = "10px Inter, sans-serif";
+                    ctx.fillStyle = "rgba(255,255,255,0.25)";
+                    const minX = view.cx - width / 2 / view.scale, maxX = view.cx + width / 2 / view.scale;
+                    const minZ = view.cz - height / 2 / view.scale, maxZ = view.cz + height / 2 / view.scale;
+                    for (let gx = Math.floor(minX / step) * step; gx <= maxX; gx += step) {
+                        ctx.strokeStyle = gx === 0 ? "rgba(138,43,226,0.45)" : "rgba(255,255,255,0.05)";
+                        ctx.beginPath(); ctx.moveTo(sx(gx), 0); ctx.lineTo(sx(gx), height); ctx.stroke();
+                        ctx.fillText(gx, sx(gx) + 3, height - 4);
+                    }
+                    for (let gz = Math.floor(minZ / step) * step; gz <= maxZ; gz += step) {
+                        ctx.strokeStyle = gz === 0 ? "rgba(138,43,226,0.45)" : "rgba(255,255,255,0.05)";
+                        ctx.beginPath(); ctx.moveTo(0, sz(gz)); ctx.lineTo(width, sz(gz)); ctx.stroke();
+                        ctx.fillText(gz, 4, sz(gz) - 3);
+                    }
+
+                    // world border
+                    if (w.borderSize < 1e7) {
+                        const half = w.borderSize / 2;
+                        ctx.strokeStyle = "rgba(239,68,68,0.7)";
+                        ctx.setLineDash([6, 4]);
+                        ctx.strokeRect(sx(w.borderX - half), sz(w.borderZ - half), w.borderSize * view.scale, w.borderSize * view.scale);
+                        ctx.setLineDash([]);
+                    }
+
+                    // spawn
+                    ctx.fillStyle = "#facc15";
+                    ctx.beginPath(); ctx.arc(sx(w.spawnX), sz(w.spawnZ), 4, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = "rgba(250,204,21,0.8)";
+                    ctx.fillText("spawn", sx(w.spawnX) + 8, sz(w.spawnZ) + 3);
+
+                    // players
+                    wp.forEach((p) => {
+                        const px = sx(p.x), pz = sz(p.z);
+                        const img = headImage(p.uuid);
+                        const size = 22;
+                        ctx.shadowColor = "rgba(138,43,226,0.9)";
+                        ctx.shadowBlur = p.name === followed ? 16 : 6;
+                        if (img.complete && img.naturalWidth) {
+                            ctx.imageSmoothingEnabled = false;
+                            ctx.drawImage(img, px - size / 2, pz - size / 2, size, size);
+                        } else {
+                            ctx.fillStyle = "#8a2be2";
+                            ctx.beginPath(); ctx.arc(px, pz, 6, 0, Math.PI * 2); ctx.fill();
+                        }
+                        ctx.shadowBlur = 0;
+                        ctx.fillStyle = "#fff";
+                        ctx.font = "12px Minecraft, monospace";
+                        ctx.textAlign = "center";
+                        ctx.fillText(p.name, px, pz - size / 2 - 5);
+                        ctx.textAlign = "start";
+                        ctx.font = "10px Inter, sans-serif";
+                    });
+                }
+
+                mapCanvas.addEventListener("pointerdown", (e) => {
+                    dragging = { x: e.clientX, z: e.clientY };
+                    followed = null;
+                    mapCanvas.classList.add("dragging");
+                    mapCanvas.setPointerCapture(e.pointerId);
+                });
+                mapCanvas.addEventListener("pointermove", (e) => {
+                    if (!dragging || !view) return;
+                    view.cx -= (e.clientX - dragging.x) / view.scale;
+                    view.cz -= (e.clientY - dragging.z) / view.scale;
+                    dragging = { x: e.clientX, z: e.clientY };
+                    drawMap();
+                });
+                mapCanvas.addEventListener("pointerup", () => { dragging = null; mapCanvas.classList.remove("dragging"); });
+                mapCanvas.addEventListener("wheel", (e) => {
+                    if (!view) return;
+                    e.preventDefault();
+                    view.scale = Math.min(20, Math.max(0.02, view.scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+                    drawMap();
+                }, { passive: false });
+                window.addEventListener("resize", () => { drawMap(); loadHistory(); });
+
+                // ---------- polling ----------
+                let histCache = [];
+                async function loadHistory() {
+                    try { histCache = await getJson("/api/history"); } catch (e) {}
+                    drawChart(histCache);
+                }
+                function setLive(ok) {
+                    $("dot").classList.toggle("on", ok);
+                    $("liveText").textContent = ok ? "live" : "offline – retrying";
+                }
+                async function poll() {
+                    try {
+                        const [s, p, ev] = await Promise.all([
+                            getJson("/api/status"),
+                            getJson("/api/players"),
+                            getJson("/api/events?since=" + lastEventId),
+                        ]);
+                        status = s;
+                        players = p;
+                        renderStatus();
+                        renderPlayers();
+                        addEvents(ev);
+                        drawMap();
+                        setLive(true);
+                    } catch (e) {
+                        setLive(false);
+                    }
+                }
+                (async function start() {
+                    await poll();
+                    loadHistory();
+                    setInterval(poll, POLL_MS);
+                    setInterval(loadHistory, 15000);
+                })();
+            })();
+        </script>
+    </body>
+</html>

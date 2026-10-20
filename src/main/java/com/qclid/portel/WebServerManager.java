@@ -30,6 +30,7 @@ public class WebServerManager {
     private final RateLimiter rateLimiter;
     private final ErrorPageHandler errorPageHandler;
     private final PlaceholderHook placeholderHook;
+    private final ApiRegistry apiRegistry;
     private HttpServer server;
 
     private final Map<String, byte[]> fileCache = new ConcurrentHashMap<>();
@@ -40,7 +41,8 @@ public class WebServerManager {
         IPLogger ipLogger,
         RateLimiter rateLimiter,
         ErrorPageHandler errorPageHandler,
-        PlaceholderHook placeholderHook
+        PlaceholderHook placeholderHook,
+        ApiRegistry apiRegistry
     ) {
         this.plugin = plugin;
         this.logger = logger;
@@ -48,6 +50,7 @@ public class WebServerManager {
         this.rateLimiter = rateLimiter;
         this.errorPageHandler = errorPageHandler;
         this.placeholderHook = placeholderHook;
+        this.apiRegistry = apiRegistry;
     }
 
     public void start() throws IOException {
@@ -151,6 +154,11 @@ public class WebServerManager {
             }
 
             if (rateLimiter.isRateLimited(t, requestedFile)) {
+                return;
+            }
+
+            // Routes registered by other plugins through the Portel API
+            if (apiRegistry.dispatch(t, ip)) {
                 return;
             }
 
