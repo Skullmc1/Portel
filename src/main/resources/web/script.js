@@ -1,18 +1,15 @@
-console.log("Portel script loading...");
-
+// Live chat: bridges this page and the Minecraft server over Portel's WebSocket.
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Portel DOM Content Loaded");
   const wsPort = "%WEBSOCKET_PORT%";
 
   if (wsPort === "%" + "WEBSOCKET_PORT" + "%") {
     console.error(
-      "CRITICAL: WebSocket port placeholder was not replaced by the server! WebSocket will fail.",
+      "Portel: the %WEBSOCKET_PORT% placeholder was not replaced by the server. Chat will not connect.",
     );
   }
 
   const protocol = window.location.protocol === "https:" ? "wss" : "ws";
   const wsUrl = `${protocol}://${window.location.hostname}:${wsPort}`;
-  console.log("Connecting to WebSocket at:", wsUrl);
   let ws;
 
   const chatMessages = document.getElementById("chat-messages");
@@ -21,17 +18,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const sendBtn = document.getElementById("send-btn");
   const statusText = document.getElementById("chat-status-text");
 
+  // Remember the visitor's name between visits
+  try {
+    usernameInput.value = localStorage.getItem("portel-username") || "";
+  } catch (e) {}
+  usernameInput.addEventListener("change", () => {
+    try {
+      localStorage.setItem("portel-username", usernameInput.value.trim());
+    } catch (e) {}
+  });
+
   function updateStatus(status) {
     if (!statusText) return;
-    if (status === "connected") {
-      statusText.innerText = "Connected";
-      statusText.style.color = "#8A2BE2";
-      statusText.style.textShadow = "0 0 10px rgba(138,43,226,0.5)";
-    } else {
-      statusText.innerText = "Disconnected";
-      statusText.style.color = "#ef4444";
-      statusText.style.textShadow = "none";
+    statusText.dataset.state = status;
+    statusText.textContent = status === "connected" ? "Connected" : "Reconnecting…";
+  }
+
+  function appendMessage(sender, text, cls = "") {
+    const line = document.createElement("div");
+    line.className = "msg " + cls;
+    if (sender) {
+      const who = document.createElement("span");
+      who.className = "who";
+      who.textContent = `<${sender}> `;
+      line.appendChild(who);
     }
+    line.appendChild(document.createTextNode(text));
+    chatMessages.appendChild(line);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
   function connect() {
@@ -39,7 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ws.onopen = () => {
       updateStatus("connected");
-      chatMessages.innerHTML = "";
+      chatMessages.replaceChildren();
+      appendMessage("", "Connected to the server chat.", "system");
     };
 
     ws.onmessage = (event) => {
@@ -47,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = JSON.parse(event.data);
         const currentUser = usernameInput.value.trim() || "WebUser";
 
+        // Don't echo our own web messages that the server relays back from the game
         if (
           data.source === "game" &&
           (data.sender === "WebUser" || data.sender === currentUser)
@@ -54,13 +70,13 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        const isSelf = data.sender === currentUser;
         appendMessage(
-          `[${data.sender}] ${data.message}`,
-          isSelf ? "text-[#8A2BE2] font-semibold" : "text-gray-400",
+          data.sender,
+          data.message,
+          data.sender === currentUser ? "self" : "",
         );
       } catch (e) {
-        appendMessage(event.data);
+        appendMessage("", event.data, "system");
       }
     };
 
@@ -69,18 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(connect, 3000);
     };
 
-    ws.onerror = (err) => {
-      console.error("WebSocket error", err);
-      ws.close();
-    };
-  }
-
-  function appendMessage(text, color = "text-gray-300") {
-    const div = document.createElement("div");
-    div.className = `mb-2 break-words p-3 rounded-lg bg-[#111] border border-gray-900 shadow-sm animate-fade ${color}`;
-    div.innerText = text;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    ws.onerror = () => ws.close();
   }
 
   function sendMessage() {
@@ -90,38 +95,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (msg && ws && ws.readyState === WebSocket.OPEN) {
       ws.send(`${user}: ${msg}`);
       chatInput.value = "";
-    } else {
-      console.warn(
-        "Cannot send message. WS State:",
-        ws ? ws.readyState : "null",
-      );
     }
   }
 
   sendBtn.addEventListener("click", sendMessage);
-  chatInput.addEventListener("keypress", (e) => {
+  chatInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-  });
-
-  const observerOptions = {
-    threshold: 0.1,
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.style.animationPlayState = "running";
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll(".animate-fade").forEach((el) => {
-    el.style.animationPlayState = "paused";
-    observer.observe(el);
   });
 
   connect();

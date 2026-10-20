@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   **Live dashboard**: New `/dashboard.html` with player list and skin heads, TPS/MSPT, memory, uptime, a 15-minute history chart, an activity feed and an optional live player map. Built on the new API (`/api/status`, `/api/players`, `/api/events`, `/api/history`). See `guides/dashboard.md`.
 -   New `dashboard` config section. The map (player coordinates) is off by default.
 
+### Changed
+-   **New default homepage**: a server-owner landing page with an animated pixel-art portal, live status and player heads, a one-click Copy IP button, join steps and a Minecraft-style chat. It uses the Portel API (no PlaceholderAPI or Tailwind CDN needed) and works on mobile. The join address defaults to the site's hostname; override it with `data-address` on `<body>`.
+
 ### Fixed
 -   Fresh installs no longer fail to enable because `ips.log` / `assets/logo.png` were not bundled in the jar.
 
