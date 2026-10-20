@@ -3,60 +3,76 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#0b0713" />
         <title>Server Dashboard</title>
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;800&family=Inter:wght@300;400;600&display=swap"
-            rel="stylesheet"
-        />
         <style>
             @font-face {
                 font-family: "Minecraft";
                 src: url("fonts/Minecraft.otf") format("opentype");
+                font-display: swap;
             }
             :root {
+                --bg: #0b0713;
+                --bg-deep: #07040d;
+                --panel: #130b20;
+                --line: #2d1d46;
                 --accent: #8a2be2;
-                --bg: #080808;
-                --panel: #0f0f10;
-                --line: rgba(138, 43, 226, 0.18);
-                --text: #d4d4d4;
-                --muted: #737373;
-                --good: #4ade80;
-                --warn: #facc15;
-                --bad: #ef4444;
+                --accent-hi: #b266ff;
+                --text: #ece6f7;
+                --muted: #a79bbd;
+                --good: #5eea8a;
+                --warn: #f5c542;
+                --bad: #ff6b6b;
+                --font-mc: "Minecraft", ui-monospace, monospace;
+                --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+                --ease: cubic-bezier(0.16, 1, 0.3, 1);
             }
             * { box-sizing: border-box; }
             body {
                 margin: 0;
-                font-family: "Inter", sans-serif;
-                background: var(--bg);
+                font-family: var(--font-body);
+                background:
+                    radial-gradient(50rem 28rem at 85% -5%, rgba(138, 43, 226, 0.2), transparent 70%),
+                    var(--bg);
+                background-attachment: fixed;
                 color: var(--text);
+                line-height: 1.5;
+                -webkit-font-smoothing: antialiased;
             }
+            ::selection { background: var(--accent); color: #fff; }
+            :focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 3px; }
+            ::-webkit-scrollbar { width: 10px; height: 10px; }
+            ::-webkit-scrollbar-track { background: var(--bg-deep); }
+            ::-webkit-scrollbar-thumb { background: var(--line); border: 2px solid var(--bg-deep); }
+            ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+            * { scrollbar-color: var(--line) var(--bg-deep); }
+            a { color: var(--accent-hi); text-underline-offset: 3px; }
+            a:hover { color: #fff; }
+
             header {
                 display: flex;
                 align-items: baseline;
-                gap: 16px;
+                gap: 8px 20px;
                 flex-wrap: wrap;
                 padding: 28px 32px 8px;
             }
-            h1 {
-                font-family: "Unbounded", sans-serif;
-                font-weight: 800;
-                font-size: 1.6rem;
-                margin: 0;
-                letter-spacing: -0.02em;
-            }
-            .motd { color: var(--muted); font-size: 0.9rem; }
+            h1 { font-family: var(--font-mc); font-weight: 400; font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 0; line-height: 1.05; }
+            .motd { color: var(--muted); }
+            .home { font-size: 0.85rem; }
             .live {
                 margin-left: auto;
-                font-size: 0.75rem;
+                font-family: var(--font-mc);
+                font-size: 0.95rem;
                 color: var(--muted);
                 display: flex;
                 align-items: center;
                 gap: 8px;
             }
-            .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bad); }
-            .dot.on { background: var(--good); box-shadow: 0 0 10px var(--good); }
+            .dot { width: 10px; height: 10px; background: var(--bad); }
+            .dot.on { background: var(--good); animation: blink 2.4s ease-in-out infinite; }
+            @keyframes blink { 50% { opacity: 0.35; } }
+
             main {
                 display: grid;
                 grid-template-columns: repeat(12, 1fr);
@@ -65,26 +81,25 @@
             }
             .panel {
                 background: var(--panel);
-                border: 1px solid var(--line);
-                border-radius: 14px;
+                border: 2px solid var(--line);
+                border-radius: 4px;
                 padding: 18px 20px;
                 min-width: 0;
+                box-shadow:
+                    inset 2px 2px 0 rgba(255, 255, 255, 0.05),
+                    inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+                    0 18px 40px -18px rgba(0, 0, 0, 0.7);
             }
             .panel h2 {
                 margin: 0 0 14px;
-                font-size: 0.7rem;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.14em;
+                font-family: var(--font-mc);
+                font-weight: 400;
+                font-size: 1.1rem;
                 color: var(--muted);
             }
             .stat { grid-column: span 3; }
-            .stat .value {
-                font-family: "Unbounded", sans-serif;
-                font-size: 2rem;
-                font-weight: 500;
-            }
-            .stat .sub { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+            .stat .value { font-family: var(--font-mc); font-size: 2.2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+            .stat .sub { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
             .wide { grid-column: span 8; }
             .side { grid-column: span 4; }
             .half { grid-column: span 6; }
@@ -95,57 +110,63 @@
                 header, main { padding-left: 16px; padding-right: 16px; }
             }
             canvas { width: 100%; display: block; }
-            #map { height: 420px; background: #0a0a0b; border-radius: 10px; cursor: grab; touch-action: none; }
+            #map { height: 420px; background: var(--bg-deep); border: 2px solid var(--line); cursor: grab; touch-action: none; }
             #map.dragging { cursor: grabbing; }
-            .tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+            .tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
             .tab {
-                background: transparent;
+                background: var(--bg-deep);
                 color: var(--muted);
-                border: 1px solid var(--line);
-                border-radius: 999px;
+                border: 2px solid var(--line);
+                border-radius: 4px;
                 padding: 4px 12px;
-                font: inherit;
-                font-size: 0.75rem;
+                font-family: var(--font-mc);
+                font-size: 0.95rem;
                 cursor: pointer;
+                transition: transform 0.2s var(--ease);
             }
-            .tab.active { color: #fff; border-color: var(--accent); background: rgba(138, 43, 226, 0.2); }
-            .hint { font-size: 0.72rem; color: var(--muted); margin-top: 8px; }
+            .tab:hover { color: #fff; transform: translateY(-2px); }
+            .tab.active { color: #fff; border-color: var(--accent-hi); background: var(--accent); }
+            .hint { font-size: 0.8rem; color: var(--muted); margin-top: 10px; }
             ul { list-style: none; margin: 0; padding: 0; }
             .player {
                 display: flex;
                 align-items: center;
                 gap: 12px;
-                padding: 8px 0;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-                cursor: default;
+                padding: 9px 0;
+                border-top: 1px solid var(--line);
             }
+            .player:first-child { border-top: 0; padding-top: 0; }
             .player.clickable { cursor: pointer; }
-            .player:last-child { border-bottom: none; }
-            .player img { width: 32px; height: 32px; border-radius: 6px; image-rendering: pixelated; background: #1a1a1a; }
-            .player .name { font-family: "Minecraft", monospace; font-size: 1rem; color: #fff; }
-            .player .meta { font-size: 0.72rem; color: var(--muted); }
-            .player .ping { margin-left: auto; font-size: 0.75rem; color: var(--muted); }
-            .empty { color: var(--muted); font-size: 0.85rem; padding: 8px 0; }
+            .player.clickable:hover .name { color: var(--accent-hi); }
+            .player img { width: 36px; height: 36px; image-rendering: pixelated; background: var(--bg-deep); border: 2px solid var(--line); flex: none; }
+            .player .name { font-family: var(--font-mc); font-size: 1.05rem; color: #fff; }
+            .player .meta { font-size: 0.8rem; color: var(--muted); }
+            .player .ping { margin-left: auto; white-space: nowrap; font-family: var(--font-mc); font-size: 0.9rem; color: var(--muted); }
+            .empty { color: var(--muted); padding: 4px 0; }
             #feed { max-height: 360px; overflow-y: auto; }
-            #feed li { display: flex; gap: 10px; padding: 6px 0; font-size: 0.85rem; }
-            #feed .time { color: var(--muted); font-size: 0.72rem; flex: none; width: 52px; padding-top: 2px; }
-            #feed .badge { flex: none; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; }
+            #feed li { display: flex; gap: 10px; padding: 6px 0; font-size: 0.9rem; }
+            #feed .time { color: var(--muted); font-size: 0.8rem; flex: none; width: 56px; padding-top: 1px; font-variant-numeric: tabular-nums; }
+            #feed .badge { flex: none; width: 8px; height: 8px; margin-top: 8px; }
             .t-join .badge { background: var(--good); }
             .t-quit .badge { background: var(--muted); }
             .t-death .badge { background: var(--bad); }
             .t-advancement .badge { background: var(--warn); }
-            .t-chat .badge { background: var(--accent); }
-            .t-chat .who { color: #c4a1ff; }
-            .bar { height: 6px; background: #1a1a1a; border-radius: 99px; overflow: hidden; margin-top: 10px; }
+            .t-chat .badge { background: var(--accent-hi); }
+            .t-chat .who { color: var(--accent-hi); }
+            .bar { height: 8px; background: var(--bg-deep); border: 2px solid var(--line); margin-top: 12px; }
             .bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width 0.4s; }
             .chart { height: 140px; }
-            .legend { font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
-            a { color: var(--accent); text-decoration: none; }
-            footer { text-align: center; color: var(--muted); font-size: 0.72rem; padding: 0 0 28px; }
+            .legend { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+            footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 0 0 28px; }
+            @media (prefers-reduced-motion: reduce) {
+                .dot.on { animation: none; }
+                .tab { transition: none; }
+            }
         </style>
     </head>
     <body>
         <header>
+            <a class="home" href="/">← Home</a>
             <h1 id="name">Server</h1>
             <span class="motd" id="motd"></span>
             <span class="live"><span class="dot" id="dot"></span><span id="liveText">connecting…</span></span>
@@ -188,7 +209,7 @@
             <section class="panel half">
                 <h2>TPS &amp; players · last 15 min</h2>
                 <canvas id="chart-tps" class="chart"></canvas>
-                <div class="legend"><span style="color: #8a2be2">■</span> TPS &nbsp; <span style="color: #4ade80">■</span> players</div>
+                <div class="legend"><span style="color: #8a2be2">■</span> TPS &nbsp; <span style="color: #5eea8a">■</span> players</div>
             </section>
 
             <section class="panel half">
@@ -362,7 +383,7 @@
                     const x = (t) => ((t - t0) / (t1 - t0)) * (w - 2) + 1;
                     const maxP = Math.max(5, ...hist.map((s) => s.players));
                     line(ctx, hist.map((s) => [x(s.t), 6 + (h - 12) * (1 - Math.min(s.tps, 20) / 20)]), "#8a2be2");
-                    line(ctx, hist.map((s) => [x(s.t), 6 + (h - 12) * (1 - s.players / maxP)]), "#4ade80");
+                    line(ctx, hist.map((s) => [x(s.t), 6 + (h - 12) * (1 - s.players / maxP)]), "#5eea8a");
                 }
 
                 // ---------- map ----------
@@ -399,7 +420,7 @@
                     const sx = (x) => (x - view.cx) * view.scale + width / 2;
                     const sz = (z) => (z - view.cz) * view.scale + height / 2;
 
-                    ctx.fillStyle = "#0a0a0b";
+                    ctx.fillStyle = "#07040d";
                     ctx.fillRect(0, 0, width, height);
 
                     // grid
@@ -408,7 +429,7 @@
                     const pow = Math.pow(10, Math.floor(Math.log10(rawStep)));
                     const step = [1, 2, 5, 10].map((m) => m * pow).find((s) => s >= rawStep) || pow * 10;
                     ctx.lineWidth = 1;
-                    ctx.font = "10px Inter, sans-serif";
+                    ctx.font = "10px system-ui, sans-serif";
                     ctx.fillStyle = "rgba(255,255,255,0.25)";
                     const minX = view.cx - width / 2 / view.scale, maxX = view.cx + width / 2 / view.scale;
                     const minZ = view.cz - height / 2 / view.scale, maxZ = view.cz + height / 2 / view.scale;
@@ -458,7 +479,7 @@
                         ctx.textAlign = "center";
                         ctx.fillText(p.name, px, pz - size / 2 - 5);
                         ctx.textAlign = "start";
-                        ctx.font = "10px Inter, sans-serif";
+                        ctx.font = "10px system-ui, sans-serif";
                     });
                 }
 
