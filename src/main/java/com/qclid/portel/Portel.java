@@ -70,7 +70,13 @@ public final class Portel extends JavaPlugin {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            consoleLogger.warning(
+                "Could not start the web server on port " + getConfig().getInt("port") +
+                " (" + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()) + "). " +
+                "Is another program using that port? Change 'port' in config.yml."
+            );
+            getServer().getPluginManager().disablePlugin(this);
+            return;
         }
 
         int wsPort = getConfig().getInt("websocket-port", getConfig().getInt("port") + 1);
@@ -120,7 +126,9 @@ public final class Portel extends JavaPlugin {
             dashboard.stop();
         }
         getServer().getServicesManager().unregisterAll(this);
-        webServerManager.stop();
+        if (webServerManager != null) {
+            webServerManager.stop();
+        }
         if (wsManager != null) {
             try {
                 wsManager.stop();
